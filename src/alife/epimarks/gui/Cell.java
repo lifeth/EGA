@@ -15,7 +15,7 @@ public class Cell implements Runnable{
 	
 	private Type identifier;	
 	public Solution<MarkedBitArray> solution;
-	private ArrayList<ArrayList<Molecule>> molecules;
+	private ArrayList<Molecule> molecules;
 	public int energy;
 	private Image image;
 	private Point position;
@@ -26,6 +26,10 @@ public class Cell implements Runnable{
 	 * 
 	 */
 	public Cell() {
+		
+		if(this.molecules == null){
+			this.molecules = new ArrayList<>();
+		}
 	}
 	
 	/**
@@ -35,6 +39,7 @@ public class Cell implements Runnable{
 	 * @param dimension
 	 */
 	public Cell(Type identifier, Image image, Point position, Dimension dimension) {
+		this();
 		this.identifier = identifier;
 		this.image = image;
 		this.position = position;
@@ -49,6 +54,7 @@ public class Cell implements Runnable{
 	 * @param dimension
 	 */
 	public Cell(Type identifier, Solution<MarkedBitArray> solution, Image image, Point position, Dimension dimension) {
+		this();
 		this.identifier = identifier;
 		this.solution = solution;
 		this.image = image;
@@ -64,15 +70,11 @@ public class Cell implements Runnable{
 		this.identifier = identifier;
 	}
 
-	public ArrayList<ArrayList<Molecule>> getMolecules() {
-		
-		if(molecules == null){
-			molecules = new ArrayList<>();
-		}
+	public ArrayList<Molecule> getMolecules() {
 		return molecules;
 	}
 
-	public void setMolecules(ArrayList<ArrayList<Molecule>> molecules) {
+	public void setMolecules(ArrayList<Molecule> molecules) {
 		this.molecules = molecules;
 	}
 

@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
 
-public class Molecule implements Runnable{
+public class Molecule implements Runnable {
 
 	private String code;
 	private MType type;
@@ -12,7 +12,6 @@ public class Molecule implements Runnable{
 	private Point position;
 	private Dimension dimension;
 	public int signal = 0;
-
 
 	public Molecule() {
 	}
@@ -47,7 +46,7 @@ public class Molecule implements Runnable{
 		this.position = position;
 		this.dimension = dimension;
 		Thread thread = new Thread(this);
-		//mo.setThread(thread);
+		// this.setThread(thread);
 		thread.start();
 	}
 
@@ -97,18 +96,19 @@ public class Molecule implements Runnable{
 	}
 
 	public enum MType {
-	   RECEPTOR, TRANSPORTER, eUNIT
+		RECEPTOR, TRANSPORTER, eUNIT
 	}
 
-	
 	@Override
 	public void run() {
-		// TODO MOVING	calculations
-		
-		//receptor molecules must notify to cells when getting units to increment the energy
-		if(MType.RECEPTOR.equals(type)){
-			//last time this caught units was xxxxxx, this may be a reason to mark the chromosome. 
-			signal = 2;//more TODO  this will be improved with ISignal commands
+		// TODO MOVING calculations for transporters and eUnits
+
+		// receptor molecules must notify to cells when getting units to
+		// increment the energy
+		if (MType.RECEPTOR.equals(type)) {
+			// last time this caught units was xxxxxx, this may be a reason to
+			// mark the chromosome.
+			signal = 2;// more TODO this will be improved with ISignal commands
 		}
 	}
 }

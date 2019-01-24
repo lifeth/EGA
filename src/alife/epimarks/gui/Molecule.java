@@ -7,19 +7,25 @@ import java.awt.Point;
 public class Molecule implements Runnable {
 
 	private String code;
+	private ISignal parent;
 	private MType type;
 	private Image image;
 	private Point position;
 	private Dimension dimension;
-	public int signal = 0;
+	
+	public int input;
 
 	public Molecule() {
+		Thread thread = new Thread(this);
+		// this.setThread(thread);
+		thread.start();
 	}
 
 	/**
 	 * @param code
 	 */
 	public Molecule(String code) {
+		this();
 		this.code = code;
 	}
 
@@ -27,9 +33,11 @@ public class Molecule implements Runnable {
 	 * @param code
 	 * @param type
 	 */
-	public Molecule(String code, MType type) {
+	public Molecule(String code, MType type, ISignal parent) {
+		this();
 		this.code = code;
 		this.type = type;
+		this.parent = parent;
 	}
 
 	/**
@@ -40,14 +48,12 @@ public class Molecule implements Runnable {
 	 * @param dimension
 	 */
 	public Molecule(String code, MType type, Image image, Point position, Dimension dimension) {
+		this();
 		this.code = code;
 		this.type = type;
 		this.image = image;
 		this.position = position;
 		this.dimension = dimension;
-		Thread thread = new Thread(this);
-		// this.setThread(thread);
-		thread.start();
 	}
 
 	public String getCode() {
@@ -103,12 +109,18 @@ public class Molecule implements Runnable {
 	public void run() {
 		// TODO MOVING calculations for transporters and eUnits
 
-		// receptor molecules must notify to cells when getting units to
-		// increment the energy
+		// Receptor Molecules notify to cells when getting units to
+		// increment their energy.
 		if (MType.RECEPTOR.equals(type)) {
-			// last time this caught units was xxxxxx, this may be a reason to
-			// mark the chromosome.
-			signal = 2;// more TODO this will be improved with ISignal commands
+
+			while (true) {// forever
+
+				if (this.input > 0) {// this caught some units
+					parent.processSignal(1, this.input);
+					this.input = 0;
+				}
+
+			}
 		}
 	}
 }

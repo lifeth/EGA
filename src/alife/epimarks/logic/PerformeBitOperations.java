@@ -19,17 +19,10 @@ import unalcol.search.solution.Solution;
 public class PerformeBitOperations {
 
 	public void markingProcess(Solution<MarkedBitArray> solution) {
+		// TODO
 		Marking marking = new Marking();
-		// TODO vamos marcando en la mitad si no se recibe eUNITS durante 1000
-		// iteraciones
-		// se debe definir que marcas son buenas y cuales malas para castigar
-		// cuando no se recibe eUNITS
-		int i = 1000;
-		while (i > 0) {
-			solution.set(marking.apply(solution.object()));
-			System.out.println(solution.object().toStringTags() + ": " + solution.info(Goal.class.getName()));
-			i--;
-		}
+		solution.set(marking.apply(solution.object()));
+		System.out.println(solution.object().toStringTags() + ": " + solution.info(Goal.class.getName()));
 	}
 
 	public String[] readingProcess(Solution<MarkedBitArray> solution) {

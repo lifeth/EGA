@@ -2,6 +2,8 @@ package alife.epimarks;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Vector;
+
 import javax.swing.ImageIcon;
 
 import alife.epimarks.function.Deceptive;
@@ -30,12 +32,12 @@ import unalcol.search.solution.Solution;
  */
 public class Controller {
 
-	private PerformeBitOperations pbo = new PerformeBitOperations();
+	protected static PerformeBitOperations pbo = new PerformeBitOperations();
 
 	public Controller() throws Exception {
 
-		// same copy for every cell
-		MarkedBitArray chromosome = new MarkedBitArray(320, 3, true);
+		Vector<Individual> individuals = new Vector<>();
+		Environment env = new Environment();
 
 		// Optimization Function for each cell, each one will try to solve one
 		// problem.
@@ -44,37 +46,57 @@ public class Controller {
 		OptimizationFunction<MarkedBitArray> functionRR = new RoyalRoad().new Extended();
 		OptimizationFunction<MarkedBitArray> functionMO = new MaxOnes().new Extended();
 
-		Solution<MarkedBitArray> s1 = new Solution<MarkedBitArray>(chromosome,
-				new OptimizationGoal<MarkedBitArray>(functionRR, false));
-		Solution<MarkedBitArray> s2 = new Solution<MarkedBitArray>(chromosome.clone(),
-				new OptimizationGoal<MarkedBitArray>(functionD3, false));
-		Solution<MarkedBitArray> s3 = new Solution<MarkedBitArray>(chromosome.clone(),
-				new OptimizationGoal<MarkedBitArray>(functionD4, false));
-		Solution<MarkedBitArray> s4 = new Solution<MarkedBitArray>(chromosome.clone(),
-				new OptimizationGoal<MarkedBitArray>(functionMO, false));
+		String data[] = { "SheFemale", "gui/img/female1.png", "HeMale", "gui/img/male2.png" };
 
-		Cell one = new Cell(Type.METABOLIC, s1, new ImageIcon(getClass().getResource("gui/img/gcell1.png")).getImage(),
-				new Point(500, 10), new Dimension(150, 150));
+		int k = 0;
+		for (int i = 0; i < 2; i++) {
 
-		Cell two = new Cell(Type.TRANSPORTER, s2,
-				new ImageIcon(getClass().getResource("gui/img/ocell2.png")).getImage(), new Point(600, 240),
-				new Dimension(150, 150));
+			Individual individual = new Individual();
+			individual.setName(data[k]);
+			individual.setImage(new ImageIcon(getClass().getResource(data[++k])));
+			k++;
 
-		Cell three = new Cell(Type.CONSUMPTION, s3,
-				new ImageIcon(getClass().getResource("gui/img/bcell3.png")).getImage(), new Point(400, 350),
-				new Dimension(150, 150));
+			// same copy for every cell
+			MarkedBitArray chromosome = new MarkedBitArray(320, 3, true);
 
-		Cell four = new Cell(Type.REPRODUCTIVE, s4,
-				new ImageIcon(getClass().getResource("gui/img/rcell4.png")).getImage(), new Point(500, 550),
-				new Dimension(150, 150));
+			Solution<MarkedBitArray> s1 = new Solution<MarkedBitArray>(chromosome,
+					new OptimizationGoal<MarkedBitArray>(functionRR, false));
+			Solution<MarkedBitArray> s2 = new Solution<MarkedBitArray>(chromosome.clone(),
+					new OptimizationGoal<MarkedBitArray>(functionD3, false));
+			Solution<MarkedBitArray> s3 = new Solution<MarkedBitArray>(chromosome.clone(),
+					new OptimizationGoal<MarkedBitArray>(functionD4, false));
+			Solution<MarkedBitArray> s4 = new Solution<MarkedBitArray>(chromosome.clone(),
+					new OptimizationGoal<MarkedBitArray>(functionMO, false));
 
-		Individual individual = new Individual();
-		individual.setStructure(individual.new Structure(one, two, three, four));
+			Cell one = new Cell(Type.METABOLIC, s1,
+					new ImageIcon(getClass().getResource("gui/img/gcell1.png")).getImage(), new Point(250, 10),
+					new Dimension(150, 150), individual);
 
-		Environment env = new Environment();
-		env.init(individual);
+			Cell two = new Cell(Type.TRANSPORTER, s2,
+					new ImageIcon(getClass().getResource("gui/img/ocell2.png")).getImage(), new Point(350, 240),
+					new Dimension(150, 150), individual);
 
-		checksOn(individual);
+			Cell three = new Cell(Type.CONSUMPTION, s3,
+					new ImageIcon(getClass().getResource("gui/img/bcell3.png")).getImage(), new Point(150, 350),
+					new Dimension(150, 150), individual);
+
+			Cell four = new Cell(Type.REPRODUCTIVE, s4,
+					new ImageIcon(getClass().getResource("gui/img/rcell4.png")).getImage(), new Point(250, 550),
+					new Dimension(150, 150), individual);
+
+			individual.setStructure(individual.new Structure(one, two, three, four));
+			individuals.add(individual);
+		}
+
+		env.init(individuals);
+
+		try {
+			Thread.sleep(7000); // wait until individuals got painted.
+		} catch (InterruptedException e) {
+		}
+
+		individuals.get(0).startThread();
+		individuals.get(1).startThread();
 	}
 
 	/**
@@ -85,78 +107,50 @@ public class Controller {
 	 * 
 	 * @param individual
 	 */
-	public void checksOn(Individual individual) {
+	public static void checksOn(Individual individual) {
 
-		int x, y;
-		int i = 0;
+		// checks TODO
 
-		while (true) {
+		individual.input = 10;// TODO just for testing, food init
+		int x;
+		int y = 10;
 
-			if (i == 1000) {
+		for (int j = 0; j < individual.input; j++) {// TODO
 
-				// checks every 1000 for cell signals
-				if (individual.getStructure().metabolicCell.signal == 1) {
-
-					individual.incomes = 10;// TODO just for testing, food init
-					y = 10;
-
-					for (int j = 0; j < individual.incomes; j++) {
-
-						individual.getStructure().metabolicCell.getMolecules()
-								.add(new Molecule("1", MType.eUNIT,
-										new ImageIcon(getClass().getResource("gui/img/unit" + j + ".png")).getImage(),
-										new Point(500, y), new Dimension(10, 10)));
-						y += 20;
-					}
-				}
-
-				if (individual.getStructure().transportCell.signal == 1) {
-
-					String[] codes = pbo.readingProcess(individual.getStructure().metabolicCell.solution);// TODO
-					x = 600;
-					y = 200;
-
-					// for (String code : codes) {TODO
-					for (int j = 1; j <= 5; j++) {
-						individual.getStructure().transportCell.getMolecules().add(new Molecule(codes[0],
-								MType.TRANSPORTER,
-								new ImageIcon(getClass().getResource("gui/img/transporter" + j + ".png")).getImage(),
-								new Point(x, y), new Dimension(70, 10)));
-						x += 30;
-						y += 20;
-					}
-
-					addReceptors(individual.getStructure().transportCell, codes[0], "gui/img/receptor5.png");
-				}
-
-				if (individual.getStructure().consumptionCell.signal == 1) {
-
-					String[] codes = pbo.readingProcess(individual.getStructure().consumptionCell.solution);// TODO
-
-					addReceptors(individual.getStructure().consumptionCell, codes[0], "gui/img/receptor2.png");
-				}
-
-				if (individual.getStructure().reproductiveCell.signal == 1) {
-					String[] codes = pbo.readingProcess(individual.getStructure().reproductiveCell.solution);// TODO
-
-					addReceptors(individual.getStructure().reproductiveCell, codes[0], "gui/img/receptor1.png");
-				}
-
-				if (individual.getStructure().reproductiveCell.getMolecules().get(0).signal == 2) {// TODO
-
-					pbo.markingProcess(individual.getStructure().reproductiveCell.solution);// marking!!!
-				}
-
-				individual.repaint();
-				i = -1;
-				break;// TODO just need to test one time for now
-			}
-
-			i++;
+			individual.getStructure().metabolicCell.getMolecules()
+					.add(new Molecule("1", MType.eUNIT,
+							new ImageIcon(Controller.class.getResource("gui/img/unit" + j + ".png")).getImage(),
+							new Point(250, y), new Dimension(10, 10)));
+			y += 20;
 		}
+
+		String[] codes = pbo.readingProcess(individual.getStructure().metabolicCell.solution);// TODO
+		x = 350;
+		y = 200;
+
+		// for (String code : codes) {TODO
+		for (int j = 1; j <= 5; j++) {
+			individual.getStructure().transportCell.getMolecules()
+					.add(new Molecule(codes[0], MType.TRANSPORTER,
+							new ImageIcon(Controller.class.getResource("gui/img/transporter" + j + ".png")).getImage(),
+							new Point(x, y), new Dimension(70, 10)));
+			x += 30;
+			y += 20;
+		}
+
+		addReceptors(individual.getStructure().transportCell, codes[0], "gui/img/receptor5.png");
+
+		codes = pbo.readingProcess(individual.getStructure().consumptionCell.solution);// TODO
+		addReceptors(individual.getStructure().consumptionCell, codes[0], "gui/img/receptor2.png");
+
+		codes = pbo.readingProcess(individual.getStructure().reproductiveCell.solution);// TODO
+		addReceptors(individual.getStructure().reproductiveCell, codes[0], "gui/img/receptor1.png");
+
+		pbo.markingProcess(individual.getStructure().reproductiveCell.solution);// marking!!!
+
 	}
 
-	public void addReceptors(Cell cell, String code, String img) {
+	public static void addReceptors(Cell cell, String code, String img) {
 
 		int x, y;
 		int size = 150;
@@ -177,8 +171,9 @@ public class Controller {
 			// int w = 2 * r2;
 			// int h = 2 * r2;
 
-			cell.getMolecules().add(new Molecule(code, MType.RECEPTOR,
-					new ImageIcon(getClass().getResource(img)).getImage(), new Point(x, y), new Dimension(20, 30)));
+			cell.getMolecules()
+					.add(new Molecule(code, MType.RECEPTOR, new ImageIcon(Controller.class.getResource(img)).getImage(),
+							new Point(x, y), new Dimension(20, 30)));
 		}
 	}
 

@@ -4,7 +4,7 @@
 package alife.epimarks.gui;
 
 /**
- * This serves as template for individual-cell-molecules communication to send
+ * This serves as template for individual-cell-molecules communication to send/receive
  * signals among them.
  * 
  * @author lifeth
@@ -13,18 +13,12 @@ package alife.epimarks.gui;
 public interface ISignal {
 
 	/**
-	 * Sends a message to communicate info to perform any action.
+	 * Sends/Receives a message with info to perform any action.
 	 * 
 	 * @param command
 	 *            describes what to do.
+	 * @param param
 	 */
-	public void sendSignal(String command);
+	public void processSignal(int command, Integer param);
 
-	/**
-	 * Receives a message with info to perform any action.
-	 * 
-	 * @param command
-	 *            describes what to do.
-	 */
-	public void receiveSignal(String command);
 }

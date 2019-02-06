@@ -32,7 +32,7 @@ import unalcol.search.solution.Solution;
  */
 public class Controller {
 
-	protected static PerformeBitOperations pbo = new PerformeBitOperations();
+	public static PerformeBitOperations pbo = new PerformeBitOperations();
 
 	public Controller() throws Exception {
 
@@ -91,7 +91,7 @@ public class Controller {
 		env.init(individuals);
 
 		try {
-			Thread.sleep(7000); // wait until individuals got painted.
+			Thread.sleep(6000); // wait until individuals get painted.
 		} catch (InterruptedException e) {
 		}
 
@@ -100,54 +100,61 @@ public class Controller {
 	}
 
 	/**
-	 * Checks every 1000 for cell signals.
-	 * 
-	 * TODO this will be improved with signals messages (ISignal interface). in
-	 * order to build molecules, eat, or mark.
+	 * Checks on the specified individual.
 	 * 
 	 * @param individual
 	 */
 	public static void checksOn(Individual individual) {
 
 		// checks TODO
+	}
 
-		individual.input = 10;// TODO just for testing, food init
+	public static void buildMolecules(Cell cell, int energy) {
 		int x;
 		int y = 10;
+		String[] codes;
 
-		for (int j = 0; j < individual.input; j++) {// TODO
+		switch (cell.getIdentifier()) {
+		case METABOLIC:
 
-			individual.getStructure().metabolicCell.getMolecules()
-					.add(new Molecule("1", MType.eUNIT,
-							new ImageIcon(Controller.class.getResource("gui/img/unit" + j + ".png")).getImage(),
-							new Point(250, y), new Dimension(10, 10)));
-			y += 20;
+			for (int j = 0; j < energy; j++) {
+
+				cell.getMolecules()
+						.add(new Molecule("1", MType.eUNIT,
+								new ImageIcon(Controller.class.getResource("gui/img/unit" + Utils.next(0, 9) + ".png"))
+										.getImage(),
+								new Point(250, y), new Dimension(10, 10)));
+				y += 20;
+			}
+			break;
+
+		case TRANSPORTER:
+			codes = pbo.readingProcess(cell.solution);
+			x = 350;
+			y = 200;
+
+			// for (String code : codes) {TODO
+			for (int j = 1; j <= 5; j++) {
+				cell.getMolecules().add(new Molecule(codes[0], MType.TRANSPORTER,
+						new ImageIcon(Controller.class.getResource("gui/img/transporter" + j + ".png")).getImage(),
+						new Point(x, y), new Dimension(70, 10), cell));
+				x += 30;
+				y += 20;
+			}
+
+			addReceptors(cell, codes[0], "gui/img/receptor5.png");
+			break;
+		case CONSUMPTION:
+			codes = pbo.readingProcess(cell.solution);
+			addReceptors(cell, codes[0], "gui/img/receptor2.png");
+			break;
+		case REPRODUCTIVE:
+			codes = pbo.readingProcess(cell.solution);
+			addReceptors(cell, codes[0], "gui/img/receptor1.png");
+			break;
+		default:
+			break;
 		}
-
-		String[] codes = pbo.readingProcess(individual.getStructure().metabolicCell.solution);// TODO
-		x = 350;
-		y = 200;
-
-		// for (String code : codes) {TODO
-		for (int j = 1; j <= 5; j++) {
-			individual.getStructure().transportCell.getMolecules()
-					.add(new Molecule(codes[0], MType.TRANSPORTER,
-							new ImageIcon(Controller.class.getResource("gui/img/transporter" + j + ".png")).getImage(),
-							new Point(x, y), new Dimension(70, 10)));
-			x += 30;
-			y += 20;
-		}
-
-		addReceptors(individual.getStructure().transportCell, codes[0], "gui/img/receptor5.png");
-
-		codes = pbo.readingProcess(individual.getStructure().consumptionCell.solution);// TODO
-		addReceptors(individual.getStructure().consumptionCell, codes[0], "gui/img/receptor2.png");
-
-		codes = pbo.readingProcess(individual.getStructure().reproductiveCell.solution);// TODO
-		addReceptors(individual.getStructure().reproductiveCell, codes[0], "gui/img/receptor1.png");
-
-		pbo.markingProcess(individual.getStructure().reproductiveCell.solution);// marking!!!
-
 	}
 
 	public static void addReceptors(Cell cell, String code, String img) {
@@ -173,8 +180,12 @@ public class Controller {
 
 			cell.getMolecules()
 					.add(new Molecule(code, MType.RECEPTOR, new ImageIcon(Controller.class.getResource(img)).getImage(),
-							new Point(x, y), new Dimension(20, 30)));
+							new Point(x, y), new Dimension(20, 30), cell));
 		}
+	}
+
+	public static void mark(Cell cell) {
+		pbo.markingProcess(cell.solution);
 	}
 
 	public static void main(String[] args) {

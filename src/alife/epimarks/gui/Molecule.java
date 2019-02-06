@@ -3,6 +3,12 @@ package alife.epimarks.gui;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+
+import alife.epimarks.Utils;
 
 public class Molecule implements Runnable {
 
@@ -12,7 +18,7 @@ public class Molecule implements Runnable {
 	private Image image;
 	private Point position;
 	private Dimension dimension;
-	
+
 	public int input;
 
 	public Molecule() {
@@ -33,11 +39,10 @@ public class Molecule implements Runnable {
 	 * @param code
 	 * @param type
 	 */
-	public Molecule(String code, MType type, ISignal parent) {
+	public Molecule(String code, MType type) {
 		this();
 		this.code = code;
 		this.type = type;
-		this.parent = parent;
 	}
 
 	/**
@@ -54,6 +59,24 @@ public class Molecule implements Runnable {
 		this.image = image;
 		this.position = position;
 		this.dimension = dimension;
+	}
+
+	/**
+	 * @param code
+	 * @param type
+	 * @param image
+	 * @param position
+	 * @param dimension
+	 * @param parent
+	 */
+	public Molecule(String code, MType type, Image image, Point position, Dimension dimension, ISignal parent) {
+		this();
+		this.code = code;
+		this.type = type;
+		this.image = image;
+		this.position = position;
+		this.dimension = dimension;
+		this.parent = parent;
 	}
 
 	public String getCode() {
@@ -107,20 +130,28 @@ public class Molecule implements Runnable {
 
 	@Override
 	public void run() {
+
 		// TODO MOVING calculations for transporters and eUnits
 
 		// Receptor Molecules notify to cells when getting units to
 		// increment their energy.
 		if (MType.RECEPTOR.equals(type)) {
 
-			while (true) {// forever
+			Timer timer = new Timer(3000, new ActionListener() {
 
-				if (this.input > 0) {// this caught some units
-					parent.processSignal(1, this.input);
-					this.input = 0;
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					input = Utils.next(0, 4);// TODO number of units taken from transporters
+					
+					if (input > 0) {// this caught some units
+						parent.processSignal(2, input);
+						//input = 0;
+					}
 				}
-
-			}
+			});
+			
+			timer.start();
 		}
 	}
 }

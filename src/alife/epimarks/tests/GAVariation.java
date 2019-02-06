@@ -12,11 +12,12 @@ public class GAVariation<T> extends Variation<T>{
 	protected Selection<T> selection;
     protected Variation_1_1<T> mutation;
     protected Variation_2_2<T> xover;
-    protected Variation_1_1<T> marking;
+    protected Variation_One_One<T> marking;
     protected RandBool generator;
+    int iteration = 0;
 
     public GAVariation( Selection<T> selection, Variation_1_1<T> mutation,
-    		Variation_2_2<T> xover, double probability, Variation_1_1<T> marking) {
+    		Variation_2_2<T> xover, double probability, Variation_One_One<T> marking) {
     	this.selection = selection;
         this.xover = xover;
         this.mutation = mutation;
@@ -28,6 +29,7 @@ public class GAVariation<T> extends Variation<T>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public Solution<T>[] apply(Solution<T>... pop) {
+		iteration++;
 		//Shuffle<Solution<T>> shuffle = new Shuffle<Solution<T>>();
 		//shuffle.apply(pop);
 		pop = selection.pick(pop.length, pop);
@@ -36,6 +38,7 @@ public class GAVariation<T> extends Variation<T>{
         int m = pop.length / n;
         int k = 0;
         Solution<T>[] parents = (Solution<T>[])new Solution[n];
+
         for (int j = 0; j < m; j++) {
             for( int i=0; i<n; i++ ){
                 parents[i] = pop[k];
@@ -44,9 +47,17 @@ public class GAVariation<T> extends Variation<T>{
             Solution<T>[] offspring;
             if (generator.next()) {
             	offspring = mutation.apply(xover.apply(parents));
+            	
            	    //Marking...
-            	offspring[0] = marking.apply(offspring[0]);
-            	offspring[1] = marking.apply(offspring[1]);
+            	if(iteration >= 400 && iteration <= 600){
+	            	offspring = marking.apply(offspring);
+            	}
+            	
+            	/*if(iteration > 600){
+            		//ONLY change the bits of a tag
+            		offspring = marking.applyMutationOnTags(offspring);
+            	}*/
+            	
             } else {
             	offspring = (Solution<T>[])(new Solution[n]);
             	for (int i = 0; i < n; i++) 

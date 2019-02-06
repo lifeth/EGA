@@ -47,6 +47,6 @@ public class VarLengthBinarySpace extends Space<MarkedBitArray> {
 
 	@Override
 	public MarkedBitArray pick() {
-		return (maxVarGenes>0)?new MarkedBitArray(minLength+RawGenerator.integer(this, maxVarGenes*gene_size), 3, true):new MarkedBitArray(minLength, 3, true);
+		return (maxVarGenes>0)?new MarkedBitArray(minLength+RawGenerator.integer(this, maxVarGenes*gene_size), 5, true):new MarkedBitArray(minLength, 5, true);
 	}
 }

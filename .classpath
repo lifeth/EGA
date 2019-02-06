@@ -5,12 +5,12 @@
 	<classpathentry kind="lib" path="/unalcol-master/libs/agents.jar"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/data.jar"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/demo.jar"/>
-	<classpathentry kind="lib" path="/unalcol-master/libs/evolution.jar"/>
+	<classpathentry kind="lib" path="/unalcol-master/libs/evolution.jar" sourcepath="/unalcol-master/evolution"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/gui.jar"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/math.jar"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/mysql-connector-java-5.1.37-bin.jar"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/optimization.jar" sourcepath="/unalcol-master/optimization"/>
-	<classpathentry kind="lib" path="/unalcol-master/libs/random.jar"/>
+	<classpathentry kind="lib" path="/unalcol-master/libs/random.jar" sourcepath="/unalcol-master/random"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/services.jar" sourcepath="/unalcol-master/services"/>
 	<classpathentry kind="lib" path="/unalcol-master/libs/types.jar" sourcepath="/unalcol-master/types/src"/>
 	<classpathentry kind="output" path="bin"/>

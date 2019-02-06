@@ -2,6 +2,8 @@ package alife.epimarks.types;
 
 import unalcol.types.integer.IntUtil;
 
+import java.util.Arrays;
+
 import unalcol.random.integer.IntUniform;
 import unalcol.random.util.RandBool;
 
@@ -150,6 +152,10 @@ public class MarkedBitArray implements Cloneable {
 		}
 	}
 	
+	/**
+	 * @param source  The String with the bits that will conform the bit array
+	 * @param l tag length
+	 */
 	public MarkedBitArray(String source, int l) {
 		
 		String [] alleles = source.split(" ");
@@ -167,14 +173,10 @@ public class MarkedBitArray implements Cloneable {
 		}
 			
 		tags = new char[l][n];
-		//ismarked = new boolean[n];
 
 		for (int j = 0; j < n; j++) {
 			String string = alleles[j];
 			String ts = string.replaceAll("<|>", "").substring(1).trim();
-			
-			/*if(!ts.isEmpty())
-			   this.ismarked[j] = true;*/
 			
 			for (int i = 0; i < ts.length(); i++) {
 				this.tags[i][j] = ts.charAt(i);
@@ -274,23 +276,7 @@ public class MarkedBitArray implements Cloneable {
 		return (((IntUtil.HIGHEST_BIT >>> p) & data[m]) != 0);
 	}
 
-	/**
-	 * Returns the tags value of a specific position
-	 * 
-	 * @param i
-	 *            The bit index
-	 * @return The char array with tags of a specific bit position
-	 */
-	public char[] getTags(int i) {
-
-		char[] tags = new char[l];
-
-		for (int j = 0; j < l; j++) {
-			tags[j] = this.tags[j][i];
-		}
-
-		return tags;
-	}
+	
 
 	/**
 	 * Returns a sub bit array of the bit array starting from the position start
@@ -789,27 +775,6 @@ public class MarkedBitArray implements Cloneable {
 		return text;
 	}
 
-	public String toStringTags() {
-
-		String text = "";
-
-		for (int i = 0; i < n; i++) {
-
-			if (get(i)) {
-				text += "1";
-			} else {
-				text += "0";
-			}
-
-			char[] tags = getTags(i);
-
-			text += "<<" + (tags == null ? "" : String.valueOf(tags)) + ">>";
-			text += " ";
-		}
-
-		return text;
-	}
-
 	/**
 	 * Compares a MarkedBitArray with other Object
 	 * 
@@ -926,166 +891,161 @@ public class MarkedBitArray implements Cloneable {
 	public int getTagsLength() {
 		return l;
 	}
+	
+	public String toStringTags() {
 
-	/**
-	 * @return the ismarked
-	 
-	public boolean[] getIsMarked() {
-		return ismarked;
+		String text = "";
+
+		for (int i = 0; i < n; i++) {
+
+			if (get(i)) {
+				text += "1";
+			} else {
+				text += "0";
+			}
+
+			char[] tags = getTagsPerAllele(i);
+
+			text += "<<" + (tags == null ? "" : String.valueOf(tags)) + ">>";
+			text += " ";
+		}
+
+		return text;
 	}
 	
 	/**
-	 * @param ismarked the ismarked to set
-	 
-	public void setIsmarked(boolean[] ismarked) {
-		this.ismarked = ismarked;
-	}*/
+	 * Returns the tags value of a specific position
+	 * 
+	 * @param col
+	 *            The bit index
+	 * @return The char array with tags of a specific bit position
+	 */
+	public char[] getTagsPerAllele(int col) {
 
-	public void leftRotate(int index) {
+		char[] tags = new char[l];
 
-		String clone = this.toString();
-		int j = index;
-		for (int i = 0; i <= index; i++) {
-			set(i, clone.charAt(j) == '1');
-			j--;
+		for (int i = 0; i < l; i++) {
+			tags[i] = this.tags[i][col];
 		}
+
+		return tags;
+	}
+	
+	/**
+	 * Returns the tags that represent the Operation from a specific position
+	 * 
+	 * @param col
+	 *            The bit index
+	 * @return The char array with tags of a specific bit position
+	 */
+	public char[] getTagOp(int col) {
+
+		char[] tags = new char[2];
+		int j = 0;
+		  
+		for (int i = 0; i < 2; i++) {
+			tags[j++] = this.tags[i][col];
+		}
+
+		return tags;
+	}
+	
+	/**
+	 * Returns the tags that represent the Gene Size from a specific position
+	 * 
+	 * @param col
+	 *            The bit index
+	 * @return The char array with tags of a specific bit position
+	 */
+	public char[] getTagGSize(int col) {
+
+		char[] tags = new char[3];
+        int j = 0;
+        
+		for (int i = 2; i < l ; i++) {
+			tags[j++] = this.tags[i][col];
+		}
+
+		return tags;
 	}
 
+	/**
+	 * @param index starting position
+	 * @param k bits
+	 */
 	public void rightRotate(int index, int k) {
-		String clone = this.toString();
-		int end = index + k;
+		
+		char[] clone = this.toString().toCharArray();
+		int end = index + (k-1);//including the bit
+		
+		if (end >= this.size())
+			end = this.size() - 1;
+		
 		int j = end;
-		for (int i = index; i < end+1; i++) {
-			set(i, clone.charAt(j) == '1');
+		for (int i = index; i <= end ; i++) {
+			set(i, clone[j] == '1');
 			j--;
 		}
 	}
 
-	public void leftShift() {
-		boolean clone = get(0);
-		this.leftShift(1);
-		set(n - 1, clone);
-	}
-
-	public void rightShift() {
-		boolean clone = get(n - 1);
-		this.rightShift(1);
-		set(0, clone);
-	}
-
-	public void leftSetTo(int index) {
-		if (get(index)) {
-			this.leftSetToOne(index);
-		} else {
-			this.leftSetToZero(index);
+	/**
+	 * @param index starting position
+	 * @param k bits
+	 */
+	public void rightShift(int index, int k) {
+		
+		char[] clone = this.toString().toCharArray();
+		int end = index + k;//including the bit
+		
+		if (end > this.size())
+			end = this.size();
+		
+		//end exclusive
+		char[] sub = Arrays.copyOfRange(clone, index, end);
+		char[] sub2 = new char[sub.length];
+		
+		for (int i = 0; i < sub.length; i++) {
+			sub2[((i + 1) % sub.length)] = sub[i];
+		}
+		 
+		for (int i = 0; i < sub2.length; i++) {
+			set(index, sub2[i] == '1');
+			index++;
 		}
 	}
 
+	/**
+	 * @param index starting position
+	 * @param k bits
+	 */
 	public void rightSetTo(int index, int k) {
 		
-		int end = index + k;
+		int end = index + (k-1);//including the bit
+		
+		if (end >= this.size())
+			end = this.size() - 1;
 		
 		if (get(index)) {
-			for (int i = index+1; i < end+1; i++) {
+			for (int i = index+1; i <= end; i++) {
 				set(i, true);
 			}
 		} else {
-			for (int i = index+1; i < end+1; i++) {
+			for (int i = index+1; i <= end; i++) {
 				set(i, false);
 			}
 		}
 	}
 
-	public void transpose(int index) {
 
-		String t = "";
-		String t2 = "";
-		int left = -1, right = -1;
-
-		int neig = (index + (n - 1)) % n; // left neighbor
-		if (neig < n - 1) {
-			left = neig;
-			t += get(left) ? 1 : 0;
-		}
-
-		t += get(index) ? 1 : 0;
-
-		neig = (index + 1) % n; // right neighbor
-		if (neig > 0) {
-			right = neig;
-			t += get(right) ? 1 : 0;
-		}
-		int j = 0;
-		// int start = get(index) ? n-t.length(): 0;
-		// for (int i = start; i < start+t.length(); i++) {
-		for (int i = 0; i < t.length(); i++) {
-			t2 += get(i) ? 1 : 0;
-
-			set(i, t.charAt(j) == '1');
-			j++;
-		}
-
-		if (left != -1) {
-			set(left, t2.charAt(0) == '1');
-		}
-
-		if (left == -1)
-			set(index, t2.charAt(0) == '1');
-		else
-			set(index, t2.charAt(1) == '1');
-
-		if (right > 0) {
-			if (left == -1)
-				set(right, t2.charAt(1) == '1');
-			else
-				set(right, t2.charAt(2) == '1');
-		}
-
-	}
-
-	public void replicate(int index, int k) {
-		boolean v = get(index);
-		int end = index + k;
-		
-		for (int i = index + 2; i < end+1; i += 2) {
-			set(i, v);
-		}
-	}
-
-	public void not(int index, int k) {
-
-		for (int i = 0; i < k; i++) {
-			this.not(index);
-			index++;
-		}
-	}
-
-	public void interleave() {
-		String clone = this.toString();
-		n = clone.length() / 2;
-		int m = getIndex(n) + 1;
-		data = new int[m];
-		int j = 0;
-		for (int i = 0; i < n; i++) {
-			set(i, (clone.charAt(j) == '1'));
-			j += 2;
-		}
-	}
-
-	public boolean isMarked(int i) {
-		for (int j = 0; j < l; j++) {
-			if (this.tags[j][i] != Character.MIN_VALUE)
-				return true;
-		}
-
-		return false;
+	public boolean isMarked(int col) {
+		return this.tags[0][col] != Character.MIN_VALUE;
 	}
 
 	public static void main(String[] args) {
 
-		MarkedBitArray x = new MarkedBitArray("1<<>> 1<<>> 1<<>> 0<<>> 1<<>> 1<<>> 1<<00>> 1<<>> 0<<>> 1<<>> 0<<10>> 1<<>> 0<<>> 1<<0>> 1<<>> 0<<>> 1<<>> 1<<1>> 1<<>> 0<<>> 0<<>> 1<<>> 0<<>> 0<<11>> 0<<>> 1<<>> 1<<0>> 1<<0>> 1<<>> 0<<1>> 1<<1>> 0<<>> 0<<10>> 0<<1>> 1<<>> 0<<>> 0<<>> 0<<1>> 1<<>> 0<<>> 1<<>> 0<<0>> 1<<1>> 0<<>> 1<<>> 1<<1>> 1<<0>> 1<<>> 1<<11>> 1<<>> 1<<>> 1<<0>> 0<<0>> 1<<>> 1<<>> 1<<0>> 1<<1>> 1<<>> 1<<>> 1<<1>> 1<<0>> 1<<0>> 1<<0>> 1<<0>> 1<<>> 1<<>> 1<<1>> 0<<1>> 1<<0>> 0<<1>> 0<<1>> 1<<1>> 1<<>> 1<<>> 1<<1>> 0<<0>> 1<<1>> 0<<>> 0<<1>> 0<<>> 0<<>> 1<<1>> 0<<11>> 0<<>> 1<<0>> 1<<0>> 0<<10>> 1<<>> 1<<>> 1<<0>> 1<<>> 1<<1>> 1<<>> 0<<>> 1<<1>> 0<<>> 1<<>> 1<<>> 1<<>> 1<<>> 1<<0>> 1<<1>> 1<<>> 0<<>> 0<<1>> 1<<>> 0<<>> 1<<101>> 1<<1>> 0<<>> 1<<>> 1<<>> 0<<>> 1<<>> 1<<>> 0<<0>> 1<<>> 0<<>> 1<<>> 0<<0>> 1<<>> 1<<0>> 1<<>> 0<<1>> 0<<0>> 1<<>> 0<<>> 1<<1>> 0<<0>> 1<<>> 1<<>> 1<<>> 0<<1>> 0<<1>> 1<<1>> 1<<0>> 0<<0>> 0<<>> 0<<1>> 1<<>> 1<<0>> 1<<11>> 1<<>> 1<<>> 0<<0>> 1<<>> 1<<>> 0<<>> 1<<>> 0<<1>> 0<<0>> 1<<1>> 1<<1>> 1<<>> 1<<>> 0<<0>> 1<<>> 0<<1>> 1<<10>> 0<<01>> 1<<>> 1<<>> 1<<>> 1<<0>> 1<<1>> 0<<>> 1<<>> 1<<>> 0<<01>> 1<<>> 1<<1>> 0<<>> 1<<1>> 0<<>> 1<<>> 0<<11>> 0<<>> 0<<>> 0<<1>> 1<<>> 1<<>> 0<<>> 1<<>> 1<<0>> 1<<>> 1<<>> 1<<>> 0<<>> 0<<0>> 1<<1>> 1<<>> 0<<11>> 1<<>> 0<<>> 1<<1>> 1<<>> 1<<>> 1<<1>> 1<<>> 0<<1>> 1<<>> 1<<>> 0<<1>> 1<<>> 1<<1>> 1<<>> 0<<>> 1<<>> 1<<>> 1<<1>> 1<<1>> 1<<>> 1<<0>> 0<<>> 1<<1>> 1<<00>> 1<<>> 0<<>> 1<<>> 0<<>> 1<<11>> 1<<>> 0<<>> 1<<>> 1<<>> 1<<1>> 1<<1>> 1<<>> 1<<1>> 1<<>> 1<<0>> 1<<0>> 1<<>> 1<<>> 1<<1>> 1<<>> 1<<0>> 1<<1>> 1<<>> 0<<>> 1<<>> 1<<>> 1<<0>> 0<<>> 1<<>> 1<<>> 0<<>> 1<<1>> 1<<>> 1<<0>> 1<<1>> 1<<>> 0<<>> 0<<0>> 1<<1>> 0<<>> 1<<>> 1<<>> 1<<>> 1<<0>> 1<<>> 1<<>> 1<<1>> 1<<>> 0<<>> 0<<>> 0<<00>> 1<<>> 1<<0>> 0<<>> 1<<>> 1<<>> 1<<>> 1<<1>> 1<<>> 1<<0>> 1<<>> 1<<>> 0<<0>> 1<<>> 0<<>> 1<<>> 1<<>> 1<<1>> 0<<>> 1<<0>> 1<<>> 0<<0>> 1<<>> 1<<>> 1<<1>> 1<<>> 0<<10>> 0<<>> 1<<>> 1<<101>> 1<<>> 1<<1>> 0<<>> 1<<>>", 3);
-		System.out.println(x.toStringTags());
-		//x.replicate(16, 3);
+		MarkedBitArray x = new MarkedBitArray(20, true);
+		System.out.println(x);
+		x.rightShift(13, 8);
 		System.out.println(x);
 	}
 }

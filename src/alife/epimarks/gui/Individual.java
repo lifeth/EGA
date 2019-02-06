@@ -110,16 +110,17 @@ public class Individual implements Runnable, ISignal {
 
 	@Override
 	public void run() {
-		// TODO
-		int i = 10;
-		while (i > 0) {
-			Controller.checksOn(this);
-			i--;
-		}
+		Controller.checksOn(this);
 	}
 
 	@Override
 	public void processSignal(int command, Integer param) {
-		// TODO Auto-generated method stub
+
+		// Eat.
+		if (command == 0) {
+			this.input = 10; // Utils.next(0, 50);
+			this.structure.metabolicCell.processSignal(1, this.input);
+			this.input = 0;
+		}
 	}
 }

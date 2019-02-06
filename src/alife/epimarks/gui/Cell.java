@@ -5,12 +5,15 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Timer;
 
+import alife.epimarks.Controller;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.search.solution.Solution;
 
@@ -26,7 +29,7 @@ public class Cell implements Runnable, ISignal {
 	private Image image;
 	private Point position;
 	private Dimension dimension;
-	private Map<Integer, Integer> historyEL;
+	private Map<Integer, Long[]> historyEL;
 	private int count = 0;
 
 	public Solution<MarkedBitArray> solution;
@@ -56,6 +59,7 @@ public class Cell implements Runnable, ISignal {
 	 * @param image
 	 * @param position
 	 * @param dimension
+	 * @param parent
 	 */
 	public Cell(Type identifier, Solution<MarkedBitArray> solution, Image image, Point position, Dimension dimension,
 			ISignal parent) {
@@ -120,6 +124,9 @@ public class Cell implements Runnable, ISignal {
 	@Override
 	public void run() {
 
+		this.energy = 20;// init value
+		Cell cell = this;
+
 		if (!Type.METABOLIC.equals(this.identifier)) {
 			// Signal to construct receptor/transporter molecules
 			// When is the correct time to construct molecules?
@@ -129,38 +136,79 @@ public class Cell implements Runnable, ISignal {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
 
+					if (energy >= 20) {
+						Controller.buildMolecules(cell, 0);
+						energy -= energy * 0.5;
+					}
+					// check history of energy levels, if starvation mark, if
+					// unstable
+					// mark, if too much food mark
+
+					// Last time that a cell got eUnits was xxxx millisecs,
+					// this may be a reason to mark the chromosome.
+					// Controller.mark(cell);
 				}
 			});
 			timer.start();
 
 		} else if (Type.METABOLIC.equals(this.identifier)) {
-			// Signal to EAT!!! and transform the food in eUNITS (they are
-			// behaving as molecules),
-			// so they can be collected by transporter molecules
-			if (this.energy < 20) {
-				this.parent.processSignal(0, null);
-			}
+
+			Timer timer = new Timer(3000, new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (energy < 20) {
+						// Signal to EAT!!!
+						parent.processSignal(0, null);
+					} else {
+						// Transforms the food in eUNITS, so they can be
+						// collected by transporter molecules.
+						// Reserves energy (15%) each time the individual eats.
+						// Frees eUnits each 3000ml time. The 80% of energy is
+						// used.
+						// Energy spent, WORK 5%
+						int eu = energy;
+						energy -= energy * 0.8;
+						Controller.buildMolecules(cell, eu - energy);
+						energy -= energy * 0.05;
+					}
+				}
+			});
+
+			timer.start();
 		}
-
-		// check history of energy levels, if starvation mark, if unstable
-		// mark, if too much food mark
-
-		// Last time that a Receptor got eUnits was xxxxxx millisecs,
-		// this may be a reason to mark the chromosome.
-		// Have been xxxxx iterations/millisecs and no food.
 	}
 
 	@Override
 	public void processSignal(int command, Integer param) {
 
-		// Energy Units (eUNITS) that have been got from Receptors.
 		if (command == 1) {
-			this.energy = param;
+			// Input, food eaten by the individual, Type.METABOLIC.
+			this.energy += param;
+
+		} else if (command == 2) {
+
+			// Energy Units (eUNITS) that have been gotten from Receptors.
+			this.energy += param;
+
+			Instant start = Instant.now();
+
+			if (!historyEL.isEmpty()) {
+
+				Long[] data = this.historyEL.get(count - 1);
+				start = Instant.ofEpochSecond(data[1]);
+			}
+
+			Instant end = Instant.now();
 			// Save energy level to keep history.
-			this.historyEL.put(count++, param);
-			// Adding timer to count
+			// Adding timer to count for how long this will happen again.
+			this.historyEL.put(count++, new Long[] { param.longValue(), Duration.between(start, end).getSeconds() });
+			  
+			//System.out.println(this.historyEL);
+			//for (int i = 0; i < historyEL.size(); i++) {
+				//System.out.println(this.toString() + Arrays.toString(this.historyEL.get(i)));
+			//}		 
 		}
 	}
 }

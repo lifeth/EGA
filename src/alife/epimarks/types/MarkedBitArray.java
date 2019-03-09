@@ -24,10 +24,10 @@ public class MarkedBitArray implements Cloneable {
 
 	/**
 	 * Matrix with tags per each bit in the data bit array. Each column
-	 * corresponds to a bit in data[]. Each row contains a tag 1 or 0, each row
+	 * corresponds to the epiTags of a bit. Each row contains a tag 1 or 0, each row
 	 * of a column from top to the bottom forms part of the set of tags.
 	 */
-	protected char[][] tags = null;
+	protected char[][] epiTags = null;
 
 	/**
 	 * The tag length in binary string
@@ -59,8 +59,7 @@ public class MarkedBitArray implements Cloneable {
 	public MarkedBitArray(int n, int l, boolean randomly) {
 		this(n, randomly);
 		this.l = l;
-		this.tags = new char[l][this.n];
-		//this.ismarked = new boolean[this.n];
+		this.epiTags = new char[l][this.n];
 	}
 
 	/**
@@ -103,7 +102,7 @@ public class MarkedBitArray implements Cloneable {
 			n = source.n;
 			l = source.l;
 			data = new int[source.data.length];
-			tags = new char[l][n];
+			epiTags = new char[l][n];
 			//ismarked = new boolean[this.n];
 
 			for (int i = 0; i < source.data.length; i++) {
@@ -112,7 +111,7 @@ public class MarkedBitArray implements Cloneable {
 			for (int i = 0; i < n; i++) {
 				//ismarked[i] = source.ismarked[i];
 				for (int j = 0; j < l; j++) {
-					tags[j][i] = source.tags[j][i];
+					epiTags[j][i] = source.epiTags[j][i];
 				}
 			}
 		}
@@ -172,14 +171,14 @@ public class MarkedBitArray implements Cloneable {
 			set(i, (source.charAt(i) == '1'));
 		}
 			
-		tags = new char[l][n];
+		epiTags = new char[l][n];
 
 		for (int j = 0; j < n; j++) {
 			String string = alleles[j];
 			String ts = string.replaceAll("<|>", "").substring(1).trim();
 			
 			for (int i = 0; i < ts.length(); i++) {
-				this.tags[i][j] = ts.charAt(i);
+				this.epiTags[i][j] = ts.charAt(i);
 			}
 
 		}
@@ -873,22 +872,22 @@ public class MarkedBitArray implements Cloneable {
 	/**
 	 * @return the tags
 	 */
-	public char[][] getTags() {
-		return tags;
+	public char[][] getEpiTags() {
+		return epiTags;
 	}
 
 	/**
 	 * @param tags
 	 *            the tags to set
 	 */
-	public void setTags(char[][] tags) {
-		this.tags = tags;
+	public void setEpiTags(char[][] tags) {
+		this.epiTags = tags;
 	}
 
 	/**
 	 * @return the max tags length in bits
 	 */
-	public int getTagsLength() {
+	public int getEpiTagsLength() {
 		return l;
 	}
 	
@@ -914,7 +913,7 @@ public class MarkedBitArray implements Cloneable {
 	}
 	
 	/**
-	 * Returns the tags value of a specific position
+	 * Returns the epi tags value of a specific position
 	 * 
 	 * @param col
 	 *            The bit index
@@ -925,7 +924,7 @@ public class MarkedBitArray implements Cloneable {
 		char[] tags = new char[l];
 
 		for (int i = 0; i < l; i++) {
-			tags[i] = this.tags[i][col];
+			tags[i] = this.epiTags[i][col];
 		}
 
 		return tags;
@@ -944,7 +943,7 @@ public class MarkedBitArray implements Cloneable {
 		int j = 0;
 		  
 		for (int i = 0; i < 2; i++) {
-			tags[j++] = this.tags[i][col];
+			tags[j++] = this.epiTags[i][col];
 		}
 
 		return tags;
@@ -963,7 +962,7 @@ public class MarkedBitArray implements Cloneable {
         int j = 0;
         
 		for (int i = 2; i < l ; i++) {
-			tags[j++] = this.tags[i][col];
+			tags[j++] = this.epiTags[i][col];
 		}
 
 		return tags;
@@ -1000,7 +999,7 @@ public class MarkedBitArray implements Cloneable {
 		if (end > this.size())
 			end = this.size();
 		
-		//end exclusive
+		//end is exclusive
 		char[] sub = Arrays.copyOfRange(clone, index, end);
 		char[] sub2 = new char[sub.length];
 		
@@ -1038,7 +1037,7 @@ public class MarkedBitArray implements Cloneable {
 
 
 	public boolean isMarked(int col) {
-		return this.tags[0][col] != Character.MIN_VALUE;
+		return this.epiTags[0][col] != Character.MIN_VALUE;
 	}
 
 	public static void main(String[] args) {

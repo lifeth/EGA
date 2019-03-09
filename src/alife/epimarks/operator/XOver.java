@@ -46,21 +46,21 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 			child1_2.or(child2_1);
 			child2_2.or(child1_1);
 
-			char[][] tags_child1 = { child2_2.getTags()[0].clone(), child2_2.getTags()[1].clone(),
-									 child2_2.getTags()[2].clone(), child2_2.getTags()[3].clone(), 
-									 child2_2.getTags()[4].clone() };
+			char[][] tags_child1 = { child2_2.getEpiTags()[0].clone(), child2_2.getEpiTags()[1].clone(),
+									 child2_2.getEpiTags()[2].clone(), child2_2.getEpiTags()[3].clone(), 
+									 child2_2.getEpiTags()[4].clone() };
 
-			char[][] tags_child2 = { child1_2.getTags()[0].clone(), child1_2.getTags()[1].clone(),
-									 child1_2.getTags()[2].clone(), child1_2.getTags()[3].clone(), 
-									 child1_2.getTags()[4].clone() };
+			char[][] tags_child2 = { child1_2.getEpiTags()[0].clone(), child1_2.getEpiTags()[1].clone(),
+									 child1_2.getEpiTags()[2].clone(), child1_2.getEpiTags()[3].clone(), 
+									 child1_2.getEpiTags()[4].clone() };
 
-			for (int i = 0; i < child1.getTagsLength(); i++) {
+			for (int i = 0; i < child1.getEpiTagsLength(); i++) {
 
-				System.arraycopy(child1_2.getTags()[i], crossOverPoint, tags_child1[i], crossOverPoint,
-						child1_2.getTags()[i].length - crossOverPoint);
+				System.arraycopy(child1_2.getEpiTags()[i], crossOverPoint, tags_child1[i], crossOverPoint,
+						child1_2.getEpiTags()[i].length - crossOverPoint);
 
-				System.arraycopy(child2_2.getTags()[i], crossOverPoint, tags_child2[i], crossOverPoint,
-						child2_2.getTags()[i].length - crossOverPoint);
+				System.arraycopy(child2_2.getEpiTags()[i], crossOverPoint, tags_child2[i], crossOverPoint,
+						child2_2.getEpiTags()[i].length - crossOverPoint);
 			}
 
 			/*
@@ -78,8 +78,8 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 			 * child1_2.setIsmarked(ismarked1); child2_2.setIsmarked(ismarked2);
 			 */
 
-			child1_2.setTags(tags_child1);
-			child2_2.setTags(tags_child2);
+			child1_2.setEpiTags(tags_child1);
+			child2_2.setEpiTags(tags_child2);
 
 			return new MarkedBitArray[] { child1_2, child2_2 };
 
@@ -110,7 +110,7 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 		XOver xo = new XOver();
 		MarkedBitArray x = new MarkedBitArray(10, 5, true);
 
-		x.setTags(new char[][] { 
+		x.setEpiTags(new char[][] { 
 				{ '1', '1', '0', '1', '1', '1', '1', '0', '1', '1' },
 				{ '0', '0', '1', '0', '1', '1', '1', '0', '1', '1' },
 				{ '1', '1', '1', '1', '0', '1', '1', '1', '1', '0' },
@@ -119,7 +119,7 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 
 		MarkedBitArray y = new MarkedBitArray(10, 5, true);
 
-		y.setTags(new char[][] { 
+		y.setEpiTags(new char[][] { 
 				{ '1', '0', '0', '1', '1', '0', '1', '0', '1', '1' },
 				{ '0', '0', '0', '1', '1', '1', '1', '0', '1', '1' },
 				{ '0', '0', '1', '1', '1', '1', '1', '0', '0', '1' },

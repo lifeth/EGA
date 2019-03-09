@@ -12,12 +12,12 @@ public class GAVariation<T> extends Variation<T>{
 	protected Selection<T> selection;
     protected Variation_1_1<T> mutation;
     protected Variation_2_2<T> xover;
-    protected Variation_One_One<T> marking;
+    protected MarkingVariation_1_1<T> marking;
     protected RandBool generator;
     int iteration = 0;
 
     public GAVariation( Selection<T> selection, Variation_1_1<T> mutation,
-    		Variation_2_2<T> xover, double probability, Variation_One_One<T> marking) {
+    		Variation_2_2<T> xover, double probability, MarkingVariation_1_1<T> marking) {
     	this.selection = selection;
         this.xover = xover;
         this.mutation = mutation;
@@ -38,25 +38,26 @@ public class GAVariation<T> extends Variation<T>{
         int m = pop.length / n;
         int k = 0;
         Solution<T>[] parents = (Solution<T>[])new Solution[n];
-
+        
+        if(iteration >= 400){
+        	this.marking.computeEpiTagsStability(pop);
+        }
+        
         for (int j = 0; j < m; j++) {
             for( int i=0; i<n; i++ ){
                 parents[i] = pop[k];
                 k++;
             }
+            
             Solution<T>[] offspring;
+            
             if (generator.next()) {
             	offspring = mutation.apply(xover.apply(parents));
             	
            	    //Marking...
-            	if(iteration >= 400 && iteration <= 600){
+            	if(iteration >= 400 && iteration <= 600){	
 	            	offspring = marking.apply(offspring);
             	}
-            	
-            	/*if(iteration > 600){
-            		//ONLY change the bits of a tag
-            		offspring = marking.applyMutationOnTags(offspring);
-            	}*/
             	
             } else {
             	offspring = (Solution<T>[])(new Solution[n]);

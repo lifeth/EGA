@@ -38,7 +38,7 @@ import unalcol.types.real.array.DoubleArrayPlainWrite;
  */
 public class GATest {
 	
-	public static int MAXITERS = 1000;
+	public static int MAXITERS = 3;
 	public static int POPSIZE = 100;
 
     public static void evolveGA(int i){
@@ -86,9 +86,9 @@ public class GATest {
         Space<MarkedBitArray> space = new alife.epimarks.tests.BinarySpace( DIM );
         
         // Optimization Function
- 	   	OptimizationFunction<MarkedBitArray> function = new Deceptive().new Extended();
- 	   //OptimizationFunction<MarkedBitArray> function = new Deceptive_().new Extended();
-        //OptimizationFunction<MarkedBitArray> function = new RoyalRoad().new Extended();
+ 	   	//OptimizationFunction<MarkedBitArray> function = new Deceptive().new Extended();
+        //OptimizationFunction<MarkedBitArray> function = new Deceptive_().new Extended();
+        OptimizationFunction<MarkedBitArray> function = new RoyalRoad().new Extended();
         //OptimizationFunction<MarkedBitArray> function = new MaxOnes().new Extended();        
         Goal<MarkedBitArray,Double> goal = new OptimizationGoal<MarkedBitArray>(function, false);     
         
@@ -98,7 +98,7 @@ public class GATest {
 
         EAFactory<MarkedBitArray> factory = new EAFactory<MarkedBitArray>();
         PopulationSearch<MarkedBitArray,Double> search = 
-                factory.steady_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.7, MAXITERS );
+                factory.generational_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.7, MAXITERS );
 
         // Tracking the goal evaluations
         WriteDescriptors write_desc = new WriteDescriptors();
@@ -106,8 +106,8 @@ public class GATest {
         Write.set(Population.class, write_desc);
         Descriptors.set(Population.class, new PopulationDescriptors<MarkedBitArray>());
         
-        FileTracer tracer = new FileTracer("/Users/lifeth/Desktop/extended/steady/plotD3"+i+".txt");   
-        //ConsoleTracer tracer = new ConsoleTracer();       
+        //FileTracer tracer = new FileTracer("/Users/lifeth/Desktop/extended/steady/plotD4"+i+".txt");   
+        ConsoleTracer tracer = new ConsoleTracer();       
 
         //Tracer.addTracer(goal, tracer); 
         Tracer.addTracer(search, tracer);
@@ -122,7 +122,7 @@ public class GATest {
 	
 	public static void main(String[] args) throws Exception {
 	
-		for (int i = 0; i < 30; i++)
+		for (int i = 0; i < 1; i++)
 			evolveEGA(i);
 	}
 }

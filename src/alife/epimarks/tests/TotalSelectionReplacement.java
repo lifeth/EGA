@@ -5,8 +5,8 @@ package alife.epimarks.tests;
 
 import unalcol.search.Goal;
 import unalcol.search.population.Population;
-import unalcol.search.selection.Elitism;
 import unalcol.search.selection.Selection;
+import unalcol.search.selection.Tournament;
 import unalcol.search.solution.Solution;
 
 /**
@@ -19,7 +19,7 @@ public class TotalSelectionReplacement<T> implements unalcol.search.population.P
 protected Selection<T> selection;
 	
 	public TotalSelectionReplacement() {
-		this( new Elitism<T>(1.0, 0.0) );
+		this( new Tournament<T>(4) );//TODO torneo 4?  new Elitism<T>(1.0, 0.0)
 	}
 	
 	public TotalSelectionReplacement( Selection<T> selection ){

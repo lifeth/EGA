@@ -38,7 +38,7 @@ import unalcol.types.real.array.DoubleArrayPlainWrite;
  */
 public class GATest {
 	
-	public static int MAXITERS = 3;
+	public static int MAXITERS = 1000;
 	public static int POPSIZE = 100;
 
     public static void evolveGA(int i){
@@ -113,16 +113,16 @@ public class GATest {
         Tracer.addTracer(search, tracer);
         
         // Apply the search method        
-        Solution<MarkedBitArray> solution = 
+       // Solution<MarkedBitArray> solution = 
         search.solve(space, goal);
         
-        System.out.println(solution.object()+": "+solution.info(Goal.class.getName()));
-        System.out.println(solution.object().toStringTags());
+        //System.out.println(solution.object()+": "+solution.info(Goal.class.getName()));
+       // System.out.println(solution.object().toStringTags());
     }
 	
 	public static void main(String[] args) throws Exception {
 	
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 30; i++)
 			evolveEGA(i);
 	}
 }

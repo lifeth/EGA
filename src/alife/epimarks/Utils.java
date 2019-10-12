@@ -111,7 +111,7 @@ public class Utils {
 	public static void computeResults() throws Exception {
 
 		FileInputStream in = new FileInputStream(
-				new File("/Users/lifeth/Google Drive UNAL/UNACIONAL/TESIS/EXPERIMENTOS/extended/GRR2.txt"));
+				new File("/Users/lifeth/Google Drive UNAL/UNACIONAL/TESIS/EXPERIMENTOS/classic/GD4.txt"));
 
 		Scanner s = new Scanner(in);
 		int i = 0;
@@ -138,7 +138,7 @@ public class Utils {
 		s.close();
 
 		FileWriter plot = new FileWriter(
-				"/Users/lifeth/Google Drive UNAL/UNACIONAL/TESIS/EXPERIMENTOS/extended/PlotGRR2.txt");
+				"/Users/lifeth/Google Drive UNAL/UNACIONAL/TESIS/EXPERIMENTOS/classic/PlotGD4.txt");
 
 		plot.write("Iteration FWorst FBest FMedian FAvg Variance DeStand" + "\n");
 

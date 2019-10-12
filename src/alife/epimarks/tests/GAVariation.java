@@ -39,7 +39,7 @@ public class GAVariation<T> extends Variation<T>{
         int k = 0;
         Solution<T>[] parents = (Solution<T>[])new Solution[n];
         
-        if(iteration >= 400 && iteration <= 600){
+       if(iteration >= 400 && iteration <= 600){
         	this.marking.computeEpiTagsStability(pop);
         }
         

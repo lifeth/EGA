@@ -33,8 +33,18 @@ public class Rules {
 	public IReadingRule<MarkedBitArray> operation(int rule) throws Exception {
 
 		switch (rule) {
+		
+		//OPERATIONS
+		//0 01 transpose
+		//0 00 circular shift
+		//0 10 set to
+		//0 11 do nothing
+		//1 01 add 1 or
+		//1 00 divide by 2
+		//1 10 multiply by 0 and
+		//1 11 subtract 1 xor
 
-		case 0:// 00
+		case 0:// 000
 			return new IReadingRule<MarkedBitArray>() {
 
 				@Override
@@ -44,7 +54,7 @@ public class Rules {
 				}
 			};
 
-		case 1:// 01
+		case 1:// 001
 			return new IReadingRule<MarkedBitArray>() {
 
 				@Override
@@ -54,7 +64,7 @@ public class Rules {
 				}
 			};
 
-		case 2:// 10
+		case 2:// 010
 			return new IReadingRule<MarkedBitArray>() {
 
 				@Override
@@ -64,11 +74,51 @@ public class Rules {
 				}
 			};
 
-		case 3:// 11
+		case 3:// 011
 			return new IReadingRule<MarkedBitArray>() {
 
 				@Override
 				public MarkedBitArray apply(MarkedBitArray x, int... i) {
+					return x;
+				}
+			};
+			
+		case 4:// 100
+			return new IReadingRule<MarkedBitArray>() {
+
+				@Override
+				public MarkedBitArray apply(MarkedBitArray x, int... i) {
+					x.divideByTwo(i[0], i[1]);
+					return x;
+				}
+			};
+			
+		case 5:// 101
+			return new IReadingRule<MarkedBitArray>() {
+
+				@Override
+				public MarkedBitArray apply(MarkedBitArray x, int... i) {
+					x.addOne(i[0], i[1]);
+					return x;
+				}
+			};
+			
+		case 6:// 110
+			return new IReadingRule<MarkedBitArray>() {
+
+				@Override
+				public MarkedBitArray apply(MarkedBitArray x, int... i) {
+					x.multiplyByZero(i[0], i[1]);
+					return x;
+				}
+			};
+			
+		case 7:// 111
+			return new IReadingRule<MarkedBitArray>() {
+
+				@Override
+				public MarkedBitArray apply(MarkedBitArray x, int... i) {
+					x.subtractOne(i[0], i[1]);
 					return x;
 				}
 			};
@@ -80,6 +130,11 @@ public class Rules {
 
 	public interface IReadingRule<T> {
 
+		/**
+		 * @param x The genome
+		 * @param i The positions to be taken into account to apply the operations
+		 * @return
+		 */
 		public T apply(T x, int... i);
 	}
 

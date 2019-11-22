@@ -1,5 +1,8 @@
 package alife.epimarks.tests;
+
+import alife.epimarks.types.MarkedBitArray;
 import unalcol.random.util.*;
+import unalcol.search.Goal;
 import unalcol.search.selection.Selection;
 import unalcol.search.solution.Solution;
 import unalcol.search.variation.Variation;
@@ -39,9 +42,9 @@ public class GAVariation<T> extends Variation<T>{
         int k = 0;
         Solution<T>[] parents = (Solution<T>[])new Solution[n];
         
-       if(iteration >= 400 && iteration <= 600){
-        	this.marking.computeEpiTagsStability(pop);
-        }
+       //if(iteration >= 400 && iteration <= 600){
+        	//this.marking.computeEpiTagsStability(pop);
+        //}
         
         for (int j = 0; j < m; j++) {
             for( int i=0; i<n; i++ ){
@@ -55,7 +58,7 @@ public class GAVariation<T> extends Variation<T>{
             	offspring = mutation.apply(xover.apply(parents));
             	
            	    //Marking...
-            	if(iteration >= 400 && iteration <= 600){	
+            	if(iteration >= 400 && iteration <= 800){	
 	            	offspring = marking.apply(offspring);
             	}
             	
@@ -67,6 +70,9 @@ public class GAVariation<T> extends Variation<T>{
             
             for( int i=0; i<offspring.length; i++){
             	buffer.add(offspring[i]);
+            	//MarkedBitArray mba = (MarkedBitArray)offspring[i].object();
+            	//System.out.println(mba.toStringTags()+": "+offspring[i].info(Goal.class.getName()));
+    			//System.out.println(Arrays.toString(genome));
             }
         }
         return buffer.toArray();

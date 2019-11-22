@@ -46,13 +46,21 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 			child1_2.or(child2_1);
 			child2_2.or(child1_1);
 
-			char[][] tags_child1 = { child2_2.getEpiTags()[0].clone(), child2_2.getEpiTags()[1].clone(),
+			char[][] tags_child1 = new char[child1.getEpiTagsLength()][];
+			char[][] tags_child2 = new char[child1.getEpiTagsLength()][];
+			
+			/*char[][] tags_child1 = { child2_2.getEpiTags()[0].clone(), child2_2.getEpiTags()[1].clone(),
 									 child2_2.getEpiTags()[2].clone(), child2_2.getEpiTags()[3].clone(), 
 									 child2_2.getEpiTags()[4].clone() };
 
 			char[][] tags_child2 = { child1_2.getEpiTags()[0].clone(), child1_2.getEpiTags()[1].clone(),
 									 child1_2.getEpiTags()[2].clone(), child1_2.getEpiTags()[3].clone(), 
-									 child1_2.getEpiTags()[4].clone() };
+									 child1_2.getEpiTags()[4].clone() };*/
+			
+			for (int i = 0; i < child1.getEpiTagsLength(); i++) {
+				tags_child1[i] = child2_2.getEpiTags()[i].clone();
+				tags_child2[i] = child1_2.getEpiTags()[i].clone();
+			}
 
 			for (int i = 0; i < child1.getEpiTagsLength(); i++) {
 

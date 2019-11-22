@@ -109,23 +109,27 @@ public class Utils {
 	}
 
 	public static void computeResults() throws Exception {
-
+		
+        String GA = "extended";
+		String selection = "generational";
+		String file = "plotMO-X10M00MK002.txt";
+		
 		FileInputStream in = new FileInputStream(
-				new File("/Users/lifeth/Google Drive UNAL/UNACIONAL/TESIS/EXPERIMENTOS/classic/GD4.txt"));
-
+				//new File("/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/"+file));
+				new File("/Users/lifeth/desktop/experiments/RastriginExtended.txt"));
+		
 		Scanner s = new Scanner(in);
 		int i = 0;
 		int it = 1001;
 		int col = 6;
+		int runs = 1;
 		double statictics[][] = new double[it][6];
 
 		while (s.hasNextLine()) {
 			String line = s.nextLine();
-			String[] tokens = line.split(" ");
-			if(tokens.length>col){
-				tokens = line.substring(1).split(" ");
-			}
-			for (int y = 0; y < col; y++) {
+			String[] tokens = line.substring(1).trim().split(" ");
+			
+			for (int y = 0; y < col; y++) {	
 				statictics[i][y] += Double.parseDouble(tokens[y]);
 			}
 
@@ -138,18 +142,22 @@ public class Utils {
 		s.close();
 
 		FileWriter plot = new FileWriter(
-				"/Users/lifeth/Google Drive UNAL/UNACIONAL/TESIS/EXPERIMENTOS/classic/PlotGD4.txt");
+				//"/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/processed/"+file);
+				"/Users/lifeth/desktop/experiments/RastriginExtended.txt");
 
-		plot.write("Iteration FWorst FBest FMedian FAvg Variance DeStand" + "\n");
+		plot.write("Iteration FMin FMax FMedian FAvg Variance DeStand" + "\n");
 
 		// Statistics
 		for (int x = 0; x < it; x++) {
 			for (int j = 0; j < col; j++) {
-				statictics[x][j] /= 30;
+				statictics[x][j] /= runs;
 			}
 
-			plot.write((x + 1) + " " +  Math.rint(statictics[x][0]) + " " + Math.rint(statictics[x][1]) + " " + Math.rint(statictics[x][2]) + " "
-					+ Math.rint(statictics[x][3]) + " " + statictics[x][4] + " " + statictics[x][5] + "\n");
+			//plot.write((x + 1) + " " +  Math.rint(statictics[x][0]) + " " + Math.rint(statictics[x][1]) + " " + Math.rint(statictics[x][2]) + " "
+				//	+ Math.rint(statictics[x][3]) + " " + statictics[x][4] + " " + statictics[x][5] + "\n");
+			
+			plot.write((x + 1) + " " +  statictics[x][0] + " " + statictics[x][1]+ " " + statictics[x][2] + " "
+						+ statictics[x][3] + " " + statictics[x][4] + " " + statictics[x][5] + "\n");
 		}
 
 		plot.close();

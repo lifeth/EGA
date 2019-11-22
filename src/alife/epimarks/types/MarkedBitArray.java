@@ -1,9 +1,11 @@
 package alife.epimarks.types;
 
+import unalcol.types.collection.bitarray.BitArray;
 import unalcol.types.integer.IntUtil;
 
 import java.util.Arrays;
 
+import unalcol.optimization.real.BinaryToRealVector;
 import unalcol.random.integer.IntUniform;
 import unalcol.random.util.RandBool;
 
@@ -141,10 +143,12 @@ public class MarkedBitArray implements Cloneable {
 	 * @param source
 	 *            The String with the bits that will conform the bit array
 	 */
-	public MarkedBitArray(String source) {
+	public MarkedBitArray(String source, int l, int some) {
 		n = source.length();
+		this.l= l;
 		int m = getIndex(n) + 1;
 		data = new int[m];
+		epiTags = new char[l][n];
 		//ismarked = new boolean[this.n];
 		for (int i = 0; i < n; i++) {
 			set(i, (source.charAt(i) == '1'));
@@ -931,7 +935,16 @@ public class MarkedBitArray implements Cloneable {
 	}
 	
 	/**
-	 * Returns the tags that represent the Operation from a specific position
+	 * Returns the tags that represent the Operation from a specific position<br>
+	 * OPERATIONS<br>
+	 * 001 transpose<br>
+	 * 000 shift<br>
+	 * 010 set to<br>
+	 * 011 do nothing<br>
+	 * 101 add 1 (OR bit per bit)<br>
+	 * 100 divide by 2 (arithmetic right shift - signed shift)<br>
+	 * 110 multiply by 0 (AND bit per bit)<br>
+	 * 111 subtract 1 (bit per bit)<br>
 	 * 
 	 * @param col
 	 *            The bit index
@@ -939,10 +952,10 @@ public class MarkedBitArray implements Cloneable {
 	 */
 	public char[] getTagOp(int col) {
 
-		char[] tags = new char[2];
+		char[] tags = new char[3];
 		int j = 0;
 		  
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < tags.length; i++) {
 			tags[j++] = this.epiTags[i][col];
 		}
 
@@ -950,7 +963,17 @@ public class MarkedBitArray implements Cloneable {
 	}
 	
 	/**
-	 * Returns the tags that represent the Gene Size from a specific position
+	 * Returns the tags that represent the Gene Size from a specific position<br>
+	 * 
+	 *  GENE SIZES<br>
+	 *	0001=1 ---  1001=9<br>
+	 *	0010=2 ---  1010=10<br>
+	 *	0011=3 ---  1011=11<br>
+	 *	0100=4 ---  1100=12<br>
+	 *	0101=5 ---  1101=13<br>
+	 *	0110=6 ---  1110=14<br>
+	 *	0111=7 ---  1111=15<br>
+	 *	1000=8 ---  0000=16<br>
 	 * 
 	 * @param col
 	 *            The bit index
@@ -958,10 +981,10 @@ public class MarkedBitArray implements Cloneable {
 	 */
 	public char[] getTagGSize(int col) {
 
-		char[] tags = new char[3];
+		char[] tags = new char[4];
         int j = 0;
         
-		for (int i = 2; i < l ; i++) {
+		for (int i = 3; i < l ; i++) {
 			tags[j++] = this.epiTags[i][col];
 		}
 
@@ -969,6 +992,8 @@ public class MarkedBitArray implements Cloneable {
 	}
 
 	/**
+	 * Transpose
+	 * 
 	 * @param index starting position
 	 * @param k bits
 	 */
@@ -988,6 +1013,8 @@ public class MarkedBitArray implements Cloneable {
 	}
 
 	/**
+	 * Circular shift
+	 * 
 	 * @param index starting position
 	 * @param k bits
 	 */
@@ -1014,6 +1041,8 @@ public class MarkedBitArray implements Cloneable {
 	}
 
 	/**
+	 * Set To
+	 * 
 	 * @param index starting position
 	 * @param k bits
 	 */
@@ -1034,7 +1063,84 @@ public class MarkedBitArray implements Cloneable {
 			}
 		}
 	}
-
+	
+	/**
+	 * OR - Add one bit per bit
+	 * 
+	 * @param index
+	 * @param k
+	 */
+	public void addOne(int index, int k)
+	{
+		int end = index + (k-1);//including the bit
+		
+		if (end >= this.size())
+			end = this.size() - 1;
+		
+		for (int i = index; i <= end ; i++) {
+			set(i, get(i)|true);
+		}
+	}
+	
+	/**
+	 * Subtract one bit per bit (XOR with no borrow)
+	 * @param index
+	 * @param k
+	 */
+	public void subtractOne(int index, int k)
+	{
+		int end = index + (k-1);//including the bit
+		
+		if (end >= this.size())
+			end = this.size() - 1;
+		
+		for (int i = index; i <= end ; i++) {
+			set(i, get(i)^true);
+		}
+	}
+	
+	/**
+	 * AND - Multiply by zero bit per bit
+	 * @param index
+	 * @param k
+	 */
+	public void multiplyByZero(int index, int k)
+	{
+	   int end = index + (k-1);//including the bit
+		
+		if (end >= this.size())
+			end = this.size() - 1;
+		
+		for (int i = index; i <= end ; i++) {
+			set(i, get(i)&false);
+		}
+	}
+	
+	/**
+	 * Arithmetic right shift - signed shift.
+	 * 
+	 * @param index
+	 * @param k
+	 */
+	public void divideByTwo(int index, int k)
+	{
+		int end = index + (k-1);//including the bit
+			
+		if (end >= this.size())
+			end = this.size() - 1;
+			
+		//assuming index position contains the sign
+		boolean sign = this.get(index);
+		MarkedBitArray sub = this.subMarkedBitArray(index, end);
+		sub.rightShift(1);
+		int j = 0;
+		for (int i = index; i <= end ; i++) {
+			set(i, sub.get(j));
+			j++;
+		}
+		
+		set(index, sign);
+	}
 
 	public boolean isMarked(int col) {
 		return this.epiTags[0][col] != Character.MIN_VALUE;
@@ -1043,8 +1149,30 @@ public class MarkedBitArray implements Cloneable {
 	public static void main(String[] args) {
 
 		MarkedBitArray x = new MarkedBitArray(20, true);
+		boolean [] array = new boolean[x.size()] ;
+		Arrays.fill(array, true);
 		System.out.println(x);
-		x.rightShift(13, 8);
+		x.or(new MarkedBitArray(array));
 		System.out.println(x);
+		Arrays.fill(array, false);
+		x.and(new MarkedBitArray(array));
+		System.out.println(x);
+		x.addOne(9, 5);
+		System.out.println(x);
+		x.subtractOne(0, 20);
+		System.out.println(x);
+		//x.multiplyByZero(0, 6);
+		 x.divideByTwo(0, 1);
+		System.out.println(x);
+		 BinaryToRealVector p = new BinaryToRealVector(16);
+		 //3.941864715E9, 8.7633402E8, 4.16121036E9, 9.32366445E8, 3.77245674E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9
+		 //"1110101011110101001101000011110011111000000010000011011110010011111000001101110011010011101110111101001110111011110100111011101111010011101110111101001110111011"
+		 x = new MarkedBitArray(p.code(new double[]{3.941864715E9, 3.7633402E8, 4.16121036E9, 2.32366445E8, 3.77245674E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9}).toString(), 7, 0);
+	     System.out.println(x);
+	     System.out.println( "+++"+ p.decode(new BitArray(x.toString()))[3] );
+		 x.divideByTwo(48, 16);
+		 System.out.println(x);
+		 System.out.println( "+++"+ p.decode(new BitArray(x.toString()))[3] );
+		
 	}
 }

@@ -8,7 +8,6 @@ import unalcol.optimization.real.HyperCube;
 import unalcol.random.raw.RawGenerator;
 import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
-import unalcol.types.real.array.DoubleArray;
 
 /**
  * @author lifeth
@@ -34,13 +33,11 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 		this.maxVarGenes = (maxLength-minLength)/gene_size;		
 	}
 	
-	public VarLengthBinarySpace(int minLength, int maxLength, int DIM, double min, double max ){
+	public VarLengthBinarySpace(int minLength, int maxLength, int DIM, double min[], double max[] ){
 	  this( minLength, maxLength);
 	  this.fromReal = true;
-	  double[] minArray = DoubleArray.create(DIM, min);
-      double[] maxArray = DoubleArray.create(DIM, max);
-      this.p = new BinaryToRealVector((this.minLength/DIM), maxArray, maxArray);
-      this.space = new HyperCube( minArray, maxArray );
+      this.p = new BinaryToRealVector((this.minLength/DIM), min, max);
+      this.space = new HyperCube( min, max );
 	}
 
 	@Override

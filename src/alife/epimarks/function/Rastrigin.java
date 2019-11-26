@@ -3,14 +3,11 @@
  */
 package alife.epimarks.function;
 
-import java.util.Arrays;
-
 import alife.epimarks.operator.Reader;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.optimization.OptimizationFunction;
 import unalcol.optimization.real.BinaryToRealVector;
 import unalcol.types.collection.bitarray.BitArray;
-import unalcol.types.real.array.DoubleArray;
 
 /**
  * @author lifeth
@@ -18,17 +15,14 @@ import unalcol.types.real.array.DoubleArray;
  */
 public class Rastrigin {
 
-	int DIM = 10;
-	int BITS_PER_DOUBLE = 16;
-	double[] min = DoubleArray.create(DIM, -5.12);
-	double[] max = DoubleArray.create(DIM, 5.12);
-	BinaryToRealVector p = new BinaryToRealVector(BITS_PER_DOUBLE, min, max);
+	private BinaryToRealVector p;
 
 	/**
 	 * Constructor: Creates a Rastrigin function Variables should be in the
 	 * [-5.12, 5.12] interval
 	 */
-	public Rastrigin() {
+	public Rastrigin(int BITS_PER_DOUBLE, double min[], double max[]){
+		 this.p = new BinaryToRealVector(BITS_PER_DOUBLE, min, max);
 	}
 
 	/**

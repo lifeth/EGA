@@ -1,8 +1,7 @@
 package alife.epimarks.tests;
 
 import alife.epimarks.types.MarkedBitArray;
-import unalcol.random.util.*;
-import unalcol.search.Goal;
+import unalcol.random.util.RandBool;
 import unalcol.search.selection.Selection;
 import unalcol.search.solution.Solution;
 import unalcol.search.variation.Variation;
@@ -57,9 +56,11 @@ public class GAVariation<T> extends Variation<T>{
             if (generator.next()) {
             	offspring = mutation.apply(xover.apply(parents));
             	
-           	    //Marking...
-            	if(iteration >= 400 && iteration <= 800){	
-	            	offspring = marking.apply(offspring);
+            	//Marking...
+            	if(offspring[0].object() instanceof MarkedBitArray && 
+            			iteration >= 400 && iteration <= 800){	
+            		
+                	offspring = marking.apply(offspring);
             	}
             	
             } else {

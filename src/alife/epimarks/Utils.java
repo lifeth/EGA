@@ -5,15 +5,11 @@ package alife.epimarks;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import unalcol.types.integer.IntUtil;
 
 /**
  * @author lifeth
@@ -116,7 +112,7 @@ public class Utils {
 		
 		FileInputStream in = new FileInputStream(
 				//new File("/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/"+file));
-				new File("/Users/lifeth/desktop/experiments/RastriginExtended.txt"));
+				new File("/Users/lifeth/desktop/experiments/HAEAMarking.txt"));
 		
 		Scanner s = new Scanner(in);
 		int i = 0;
@@ -143,7 +139,7 @@ public class Utils {
 
 		FileWriter plot = new FileWriter(
 				//"/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/processed/"+file);
-				"/Users/lifeth/desktop/experiments/RastriginExtended.txt");
+				"/Users/lifeth/desktop/experiments/HAEAMarking.txt");
 
 		plot.write("Iteration FMin FMax FMedian FAvg Variance DeStand" + "\n");
 
@@ -161,5 +157,44 @@ public class Utils {
 		}
 
 		plot.close();
+	}
+	
+	public static boolean[] doubleToBinary(double [] array){
+		
+		int BITS_PER_DOUBLE = 64;
+		int start = 0;
+		boolean[] bits = new boolean[array.length*BITS_PER_DOUBLE];
+		
+		for (double d : array) {
+			
+			//if positive the binary string returned is 63 bits or less, otherwise 64.
+			// we need to make sure it is 64 for every double.
+			String binary = Long.toBinaryString(Double.doubleToRawLongBits(d));
+		     // calculate the leading zeroes plus the index where start adding the binary string
+		     start = start + (BITS_PER_DOUBLE - binary.length());
+				
+			for (int i = 0; i < binary.length(); i++) {
+				bits[start] = binary.charAt(i) == '1';
+				start++;
+			}	
+		}
+		
+		return bits;
+	}
+	
+	public static double[] binaryToDouble(String bits)
+	{
+		  int BITS_PER_DOUBLE = 64;
+		  int index = 0;
+		  int endIndex = BITS_PER_DOUBLE;
+		  double[] genome = new double[bits.length()/BITS_PER_DOUBLE];
+		  
+		  for (int i = 0; i < genome.length; i++) {
+			genome[i] = Double.longBitsToDouble( Long.parseUnsignedLong(bits.substring(index, endIndex), 2));
+			index = endIndex;
+			endIndex +=BITS_PER_DOUBLE;
+		  }
+		  
+		  return genome;
 	}
 }

@@ -3,8 +3,9 @@
  */
 package alife.epimarks.tests;
 
-import unalcol.optimization.real.BinaryToRealVector;
-import unalcol.optimization.real.HyperCube;
+import java.util.Arrays;
+
+import alife.epimarks.Utils;
 import unalcol.random.raw.RawGenerator;
 import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
@@ -19,7 +20,6 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 	protected int gene_size;
 	protected boolean fromReal;
 	protected Space<double[]> space;
-	protected BinaryToRealVector p; 
 	
 	public VarLengthBinarySpace( int minLength, int maxLength ){
 		this.minLength = minLength;
@@ -33,11 +33,10 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 		this.maxVarGenes = (maxLength-minLength)/gene_size;		
 	}
 	
-	public VarLengthBinarySpace(int minLength, int maxLength, int DIM, double min[], double max[] ){
+	public VarLengthBinarySpace(int minLength, int maxLength, Space<double[]> space){
 	  this( minLength, maxLength);
 	  this.fromReal = true;
-      this.p = new BinaryToRealVector((this.minLength/DIM), min, max);
-      this.space = new HyperCube( min, max );
+      this.space = space;
 	}
 
 	@Override
@@ -52,15 +51,31 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 
 	@Override
 	public BitArray repair(BitArray x) {
+		
+	 if(this.fromReal){
+			
+		 double [] genome =  Utils.binaryToDouble(x.toString());
+		 
+		 double [] rgenome = this.space.repair(genome);
+		 
+		 if (!Arrays.equals(rgenome, genome)){
+			 
+			  boolean[] bits = Utils.doubleToBinary(rgenome);
+			  
+			  for (int i = 0; i < bits.length; i++) {
+				  x.set(i, bits[i]);
+			  }
+		  }
+		}
+		 
 		int maxLength = minLength + maxVarGenes * gene_size;
 		if( x.size() > maxLength ){
 			x = x.subBitArray(0,maxLength);
 		}else{
 			if( x.size() < minLength )
-			x = new BitArray(minLength, true);
-			for( int i=0; i<minLength;i++)
-				x.set(i,x.get(i));
+				x.add(new BitArray(minLength-x.size(), true));
 		}
+		
 		return x;
 	}
 
@@ -68,7 +83,8 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 	public BitArray pick() {
 		
 		if(this.fromReal){  
-	        return this.p.code( this.space.pick());
+			
+	        return new BitArray(Utils.doubleToBinary(this.space.pick()));
 		}
 		
 		return (maxVarGenes>0)?new BitArray(minLength+RawGenerator.integer(this, maxVarGenes*gene_size), true):new BitArray(minLength, true);

@@ -3,10 +3,11 @@
  */
 package alife.epimarks.function;
 
+import alife.epimarks.Utils;
 import alife.epimarks.operator.Reader;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.optimization.OptimizationFunction;
-import unalcol.optimization.real.BinaryToRealVector;
+import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
 
 /**
@@ -15,14 +16,11 @@ import unalcol.types.collection.bitarray.BitArray;
  */
 public class Rastrigin {
 
-	private BinaryToRealVector p;
-
 	/**
 	 * Constructor: Creates a Rastrigin function Variables should be in the
 	 * [-5.12, 5.12] interval
 	 */
-	public Rastrigin(int BITS_PER_DOUBLE, double min[], double max[]){
-		 this.p = new BinaryToRealVector(BITS_PER_DOUBLE, min, max);
+	public Rastrigin(){
 	}
 
 	/**
@@ -47,7 +45,7 @@ public class Rastrigin {
 		 */
 		public Double apply(BitArray x) {
 			
-			double[] genome = p.decode(x);
+			double [] genome =  Utils.binaryToDouble(x.toString());
 			//System.out.println(Arrays.toString(genome));
 			int n = genome.length;
 			double f = 0.0;
@@ -61,6 +59,14 @@ public class Rastrigin {
 	public class Extended extends OptimizationFunction<MarkedBitArray> {
 
 		private Reader reader = new Reader();
+		protected Space<double[]> space;
+		  
+			/**
+			 * 
+			 */
+			public Extended(Space<double[]> space) {
+				this.space = space;
+			}
 		
 		/**
 		 * Evaluate the OptimizationFunction function over the real vector given
@@ -72,7 +78,9 @@ public class Rastrigin {
 		public Double apply(MarkedBitArray x) {
 			
 			MarkedBitArray xx = reader.readMarks(x);
-			double[] genome = p.decode(new BitArray(xx.toString()));
+			double [] genome =  Utils.binaryToDouble(xx.toString());
+			genome = this.space.repair(genome);
+			
 			//System.out.println(Arrays.toString(genome));
 			int n = genome.length;
 			double f = 0.0;

@@ -1,9 +1,10 @@
 package alife.epimarks.function;
 
+import alife.epimarks.Utils;
 import alife.epimarks.operator.Reader;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.optimization.OptimizationFunction;
-import unalcol.optimization.real.BinaryToRealVector;
+import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
 
 /**
@@ -12,15 +13,12 @@ import unalcol.types.collection.bitarray.BitArray;
  * @author lifeth
  */
 public class Ackley{
-	
-  private BinaryToRealVector p;
 
 /**
  * Constructor: Creates a Ackley function
  * [-32.768, 32.768] interval
  */
-  public Ackley(int BITS_PER_DOUBLE, double min[], double max[]){
-	 this.p = new BinaryToRealVector(BITS_PER_DOUBLE, min, max);
+  public Ackley(){
   }
   
   public class Classic extends OptimizationFunction<BitArray> {
@@ -32,7 +30,7 @@ public class Ackley{
 	   */
 	  public Double apply(BitArray x ){
 		  
-		double[] genome = p.decode(x);
+		double [] genome =  Utils.binaryToDouble(x.toString());
 		
 	    int n = genome.length;
 	    double sum1 = 0.0;
@@ -53,6 +51,14 @@ public class Ackley{
   public class Extended extends OptimizationFunction<MarkedBitArray> {
 	  
 	  private Reader reader = new Reader();
+	  protected Space<double[]> space;
+	  
+		/**
+		 * 
+		 */
+		public Extended(Space<double[]> space) {
+			this.space = space;
+		}
 		
 	  /**
 	   * Evaluate the OptimizationFunction function over the real vector given
@@ -62,7 +68,8 @@ public class Ackley{
 	  public Double apply(MarkedBitArray x ){
 		
 		MarkedBitArray xx = reader.readMarks(x);
-		double[] genome = p.decode(new BitArray(xx.toString()));
+		double [] genome =  Utils.binaryToDouble(xx.toString());
+		genome = this.space.repair(genome);
 			
 	    int n = genome.length;
 	    double sum1 = 0.0;
@@ -76,6 +83,7 @@ public class Ackley{
 	    sum2 /= n;
 
 	    return (20.0 + Math.exp(1.0) - 20.0*Math.exp(-0.2*Math.sqrt(sum1)) - Math.exp(sum2));
+	    //20 + exp(1) - (20 * exp(-0.2 * sqrt( ninverse * sum1))) - exp( ninverse * sum2);
 	  }
   }
 

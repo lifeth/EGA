@@ -6,8 +6,6 @@ package alife.epimarks.tests;
 
 import alife.epimarks.function.Ackley;
 import alife.epimarks.function.Bohachevsky;
-import alife.epimarks.function.Deceptive;
-import alife.epimarks.function.Deceptive_;
 import alife.epimarks.function.MaxOnes;
 import alife.epimarks.function.Rastrigin;
 import alife.epimarks.function.RoyalRoad;
@@ -16,16 +14,11 @@ import alife.epimarks.operator.BitMutation;
 import alife.epimarks.operator.Marking;
 import alife.epimarks.operator.XOver;
 import alife.epimarks.types.MarkedBitArray;
-import evolution.Glovito;
-import evolution.GlovitoFitness;
 import unalcol.descriptors.Descriptors;
 import unalcol.descriptors.WriteDescriptors;
 import unalcol.evolution.EAFactory;
 import unalcol.evolution.haea.HaeaOperators;
-import unalcol.evolution.haea.HaeaStep;
 import unalcol.evolution.haea.SimpleHaeaOperators;
-import unalcol.evolution.haea.SimpleHaeaOperatorsDescriptor;
-import unalcol.evolution.haea.WriteHaeaStep;
 import unalcol.io.Write;
 import unalcol.optimization.OptimizationFunction;
 import unalcol.optimization.OptimizationGoal;
@@ -35,7 +28,6 @@ import unalcol.search.population.Population;
 import unalcol.search.population.PopulationDescriptors;
 import unalcol.search.population.PopulationSearch;
 import unalcol.search.selection.Tournament;
-import unalcol.search.solution.Solution;
 import unalcol.search.space.Space;
 import unalcol.search.variation.Variation_1_1;
 import unalcol.tracer.ConsoleTracer;
@@ -52,6 +44,7 @@ public class GATest {
 	
 	public static int MAXITERS = 1000;
 	public static int POPSIZE = 100;
+	public static int BITS_PER_DOUBLE = 64;
 
     public static void evolveGA(){
         // Search Space definition
@@ -137,18 +130,17 @@ public class GATest {
     	//moves in the binary space, but computes fitness in the real space
         // Search Space definition
         int DIM = 10;
-        // Number of bits per integer (i.e. per real)
-        int BITS_PER_DOUBLE = 16;
-        double[] min = DoubleArray.create(DIM, -32.768);
-   		double[] max = DoubleArray.create(DIM, 32.768);
+        double[] min = DoubleArray.create(DIM, -500);
+   		double[] max = DoubleArray.create(DIM, 500);
+   		Space<double[]> hCube = new HyperCube( min, max );
    		
-        Space<BitArray> space = BinarySpace.getVarLengthBinarySpace(DIM*BITS_PER_DOUBLE, DIM, min, max);
+        Space<BitArray> space = BinarySpace.getVarLengthBinarySpace(DIM*BITS_PER_DOUBLE, hCube);
    
         // Optimization Function
-        // OptimizationFunction<BitArray> function = new Rastrigin(BITS_PER_DOUBLE, min, max).new Classic();  
-         OptimizationFunction<BitArray> function = new Ackley(BITS_PER_DOUBLE, min, max).new Classic();  
-        // OptimizationFunction<BitArray> function = new Bohachevsky(true, BITS_PER_DOUBLE, min, max).new Classic();  
-        // OptimizationFunction<BitArray> function = new Schwefel(BITS_PER_DOUBLE, min, max).new Classic();  
+        //OptimizationFunction<BitArray> function = new Rastrigin().new Classic();  
+        //OptimizationFunction<BitArray> function = new Ackley().new Classic();  
+       // OptimizationFunction<BitArray> function = new Bohachevsky(true).new Classic();  
+         OptimizationFunction<BitArray> function = new Schwefel().new Classic();  
         Goal<BitArray,Double> goal = new OptimizationGoal<BitArray>(function);  // minimizing, add the parameter false if maximizing       
         
          // Variation definition
@@ -182,17 +174,18 @@ public class GATest {
       //moves in the binary space, but computes fitness in the real space
         // Search Space definition
         int DIM = 10;
-        // Number of bits per integer (i.e. per real)
-        int BITS_PER_DOUBLE = 16;
-        double[] min = DoubleArray.create(DIM, -32.768);
-   		double[] max = DoubleArray.create(DIM, 32.768);
-        Space<MarkedBitArray> space = BinarySpace.getVarLengthBinarySpaceTags(DIM*BITS_PER_DOUBLE, DIM, min, max);
+
+        double[] min = DoubleArray.create(DIM, -100);
+   		double[] max = DoubleArray.create(DIM, 100);
+   		Space<double[]> hCube = new HyperCube( min, max );
+   		
+        Space<MarkedBitArray> space = BinarySpace.getVarLengthBinarySpaceTags(DIM*BITS_PER_DOUBLE, hCube);
         
         // Optimization Function   
-        //OptimizationFunction<MarkedBitArray> function = new Rastrigin(BITS_PER_DOUBLE, min, max).new Extended(); 
-        OptimizationFunction<MarkedBitArray> function = new Ackley(BITS_PER_DOUBLE, min, max).new Extended();  
-        //OptimizationFunction<MarkedBitArray> function = new Bohachevsky(true, BITS_PER_DOUBLE, min, max).new Extended();  
-        //OptimizationFunction<MarkedBitArray> function = new Schwefel(BITS_PER_DOUBLE, min, max).new Extended();  
+        //OptimizationFunction<MarkedBitArray> function = new Rastrigin().new Extended(hCube); 
+        //OptimizationFunction<MarkedBitArray> function = new Ackley().new Extended(hCube);  
+        OptimizationFunction<MarkedBitArray> function = new Bohachevsky(true).new Extended(hCube);  
+        //OptimizationFunction<MarkedBitArray> function = new Schwefel().new Extended(hCube);  
         Goal<MarkedBitArray,Double> goal = new OptimizationGoal<MarkedBitArray>(function);  // minimizing, add the parameter false if maximizing       
       
         // Variation definition
@@ -227,17 +220,18 @@ public class GATest {
 		// Search Space definition
 		int DIM = 10;
         // Number of bits per integer (i.e. per real)
-        int BITS_PER_DOUBLE = 16;
-        double[] min = DoubleArray.create(DIM, -32.768);
-   		double[] max = DoubleArray.create(DIM, 32.768);
+        
+        double[] min = DoubleArray.create(DIM, -500);
+   		double[] max = DoubleArray.create(DIM, 500);
+   		Space<double[]> hCube = new HyperCube( min, max );
    		
-        Space<BitArray> space = BinarySpace.getVarLengthBinarySpace(DIM*BITS_PER_DOUBLE, DIM, min, max);
+        Space<BitArray> space = BinarySpace.getVarLengthBinarySpace(DIM*BITS_PER_DOUBLE, hCube);
    
         // Optimization Function
-        // OptimizationFunction<BitArray> function = new Rastrigin(BITS_PER_DOUBLE, min, max).new Classic();  
-         OptimizationFunction<BitArray> function = new Ackley(BITS_PER_DOUBLE, min, max).new Classic();  
-        // OptimizationFunction<BitArray> function = new Bohachevsky(true, BITS_PER_DOUBLE, min, max).new Classic();  
-        // OptimizationFunction<BitArray> function = new Schwefel(BITS_PER_DOUBLE, min, max).new Classic();  
+        // OptimizationFunction<BitArray> function = new Rastrigin().new Classic();  
+        // OptimizationFunction<BitArray> function = new Ackley().new Classic();  
+        // OptimizationFunction<BitArray> function = new Bohachevsky(true).new Classic();  
+         OptimizationFunction<BitArray> function = new Schwefel().new Classic();  
 
         Goal<BitArray,Double> goal = new OptimizationGoal<BitArray>(function); // maximizing, remove the parameter false if minimizing   	
     	
@@ -277,18 +271,17 @@ public class GATest {
 	public static void binaryHAEAMarker(){
 		// Search Space definition
 		int DIM = 10;
-        // Number of bits per integer (i.e. per real)
-        int BITS_PER_DOUBLE = 16;
-        double[] min = DoubleArray.create(DIM, -32.768);
-   		double[] max = DoubleArray.create(DIM, 32.768);
+        double[] min = DoubleArray.create(DIM, -100);
+   		double[] max = DoubleArray.create(DIM, 100);
+   		Space<double[]> hCube = new HyperCube( min, max );
    		
-        Space<MarkedBitArray> space = BinarySpace.getVarLengthBinarySpaceTags(DIM*BITS_PER_DOUBLE, DIM, min, max);
+        Space<MarkedBitArray> space = BinarySpace.getVarLengthBinarySpaceTags(DIM*BITS_PER_DOUBLE, hCube);
    
         // Optimization Function
-      //OptimizationFunction<MarkedBitArray> function = new Rastrigin(BITS_PER_DOUBLE, min, max).new Extended(); 
-        OptimizationFunction<MarkedBitArray> function = new Ackley(BITS_PER_DOUBLE, min, max).new Extended();  
-        //OptimizationFunction<MarkedBitArray> function = new Bohachevsky(true, BITS_PER_DOUBLE, min, max).new Extended();  
-        //OptimizationFunction<MarkedBitArray> function = new Schwefel(BITS_PER_DOUBLE, min, max).new Extended();  
+        // OptimizationFunction<MarkedBitArray> function = new Rastrigin().new Extended(hCube); 
+        //OptimizationFunction<MarkedBitArray> function = new Ackley().new Extended(hCube);  
+        OptimizationFunction<MarkedBitArray> function = new Bohachevsky(true).new Extended(hCube);  
+        //OptimizationFunction<MarkedBitArray> function = new Schwefel().new Extended(hCube);  
         Goal<MarkedBitArray,Double> goal = new OptimizationGoal<MarkedBitArray>(function);  // minimizing, add the parameter false if maximizing    
     	
     	// Variation definition
@@ -329,11 +322,11 @@ public class GATest {
 	
 		for (int i = 0; i < 1; i++)
 			//real2binary();
-			//real2binaryEGA();
+			real2binaryEGA();
 			//evolveGA();
 			//evolveEGA();
 			//binaryHAEA();
-			binaryHAEAMarker();
+			//binaryHAEAMarker();
 			
 	}
 }

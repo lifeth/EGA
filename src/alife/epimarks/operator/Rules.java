@@ -35,14 +35,14 @@ public class Rules {
 		switch (rule) {
 		
 		//OPERATIONS
-		//0 01 transpose
-		//0 00 circular shift
-		//0 10 set to
-		//0 11 do nothing
-		//1 01 add 1 or
-		//1 00 divide by 2
-		//1 10 multiply by 0 and
-		//1 11 subtract 1 xor
+		//001 transpose
+		//000 circular shift
+		//010 set to
+		//011 do nothing
+		//101 add 1
+		//100 divide by 2
+		//110 multiply by 2
+		//111 subtract 1 
 
 		case 0:// 000
 			return new IReadingRule<MarkedBitArray>() {
@@ -108,7 +108,7 @@ public class Rules {
 
 				@Override
 				public MarkedBitArray apply(MarkedBitArray x, int... i) {
-					x.multiplyByZero(i[0], i[1]);
+					x.multiplyByTwo(i[0], i[1]);
 					return x;
 				}
 			};

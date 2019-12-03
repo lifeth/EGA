@@ -1,13 +1,11 @@
 package alife.epimarks.types;
 
-import unalcol.types.collection.bitarray.BitArray;
-import unalcol.types.integer.IntUtil;
-
 import java.util.Arrays;
 
-import unalcol.optimization.real.BinaryToRealVector;
+import alife.epimarks.Utils;
 import unalcol.random.integer.IntUniform;
 import unalcol.random.util.RandBool;
+import unalcol.types.integer.IntUtil;
 
 /**
  * <p>
@@ -130,6 +128,25 @@ public class MarkedBitArray implements Cloneable {
 		n = source.length;
 		int m = getIndex(n) + 1;
 		data = new int[m];
+		//ismarked = new boolean[this.n];
+		for (int i = 0; i < n; i++) {
+			set(i, source[i]);
+		}
+	}
+	
+	/**
+	 * Constructor: Creates a bit array using the boolean values given in the
+	 * array
+	 * 
+	 * @param source
+	 *            The bits that will conform the bit array
+	 */
+	public MarkedBitArray(boolean[] source, int l) {
+		n = source.length;
+		this.l= l;
+		int m = getIndex(n) + 1;
+		data = new int[m];
+		epiTags = new char[l][n];
 		//ismarked = new boolean[this.n];
 		for (int i = 0; i < n; i++) {
 			set(i, source[i]);
@@ -981,7 +998,7 @@ public class MarkedBitArray implements Cloneable {
 	 */
 	public char[] getTagGSize(int col) {
 
-		char[] tags = new char[4];
+		char[] tags = new char[l-3];
         int j = 0;
         
 		for (int i = 3; i < l ; i++) {
@@ -1065,8 +1082,7 @@ public class MarkedBitArray implements Cloneable {
 	}
 	
 	/**
-	 * OR - Add one bit per bit
-	 * 
+	 * Add ONE
 	 * @param index
 	 * @param k
 	 */
@@ -1077,13 +1093,31 @@ public class MarkedBitArray implements Cloneable {
 		if (end >= this.size())
 			end = this.size() - 1;
 		
+		MarkedBitArray sub = this.subMarkedBitArray(index, end+1);
+		long b1 = Long.parseUnsignedLong(sub.toString(), 2);
+		long sum = b1 + 1;
+		//returns binary with no leading zeroes
+		String binary = Long.toBinaryString(sum);
+		boolean[] bits = new boolean[binary.length() > sub.n ? binary.length() : sub.n];
+	
+		int j = bits.length-1;
+	     for (int i = binary.length()-1; i >= 0 ; i--) {
+		    bits[j] = binary.charAt(i) == '1';
+		    j--;
+		 }	
+		
+	     if(binary.length() > sub.n && end < this.size() - 1)
+	    	 end++;
+	     
+		j = 0;
 		for (int i = index; i <= end ; i++) {
-			set(i, get(i)|true);
+			set(i, bits[j]);
+			j++;
 		}
 	}
 	
 	/**
-	 * Subtract one bit per bit (XOR with no borrow)
+	 * Subtract ONE
 	 * @param index
 	 * @param k
 	 */
@@ -1094,25 +1128,49 @@ public class MarkedBitArray implements Cloneable {
 		if (end >= this.size())
 			end = this.size() - 1;
 		
+		MarkedBitArray sub = this.subMarkedBitArray(index, end+1);
+		long b1 = Long.parseUnsignedLong(sub.toString(), 2);
+		long subtract = b1 - 1;
+		//returns binary with no leading zeroes
+		String binary = Long.toBinaryString(subtract);
+		
+		if(subtract == -1)
+			binary = binary.substring(0, sub.n);
+		
+		boolean[] bits = new boolean[sub.n];
+	
+		int j = bits.length-1;
+	     for (int i = binary.length()-1; i >= 0 ; i--) {
+		    bits[j] = binary.charAt(i) == '1';
+		    j--;
+		 }	
+	     
+		j = 0;
 		for (int i = index; i <= end ; i++) {
-			set(i, get(i)^true);
+			set(i, bits[j]);
+			j++;
 		}
 	}
 	
 	/**
-	 * AND - Multiply by zero bit per bit
+	 * Arithmetic left shift - signed shift.
+	 * 
 	 * @param index
 	 * @param k
 	 */
-	public void multiplyByZero(int index, int k)
+	public void multiplyByTwo(int index, int k)
 	{
-	   int end = index + (k-1);//including the bit
+		int end = index + (k-1);//including the bit
 		
 		if (end >= this.size())
 			end = this.size() - 1;
 		
+		MarkedBitArray sub = this.subMarkedBitArray(index, end+1);
+		sub.leftShift(1);
+		int j = 0;
 		for (int i = index; i <= end ; i++) {
-			set(i, get(i)&false);
+			set(i, sub.get(j));
+			j++;
 		}
 	}
 	
@@ -1131,7 +1189,7 @@ public class MarkedBitArray implements Cloneable {
 			
 		//assuming index position contains the sign
 		boolean sign = this.get(index);
-		MarkedBitArray sub = this.subMarkedBitArray(index, end);
+		MarkedBitArray sub = this.subMarkedBitArray(index, end+1);
 		sub.rightShift(1);
 		int j = 0;
 		for (int i = index; i <= end ; i++) {
@@ -1149,30 +1207,36 @@ public class MarkedBitArray implements Cloneable {
 	public static void main(String[] args) {
 
 		MarkedBitArray x = new MarkedBitArray(20, true);
-		boolean [] array = new boolean[x.size()] ;
-		Arrays.fill(array, true);
-		System.out.println(x);
-		x.or(new MarkedBitArray(array));
-		System.out.println(x);
-		Arrays.fill(array, false);
-		x.and(new MarkedBitArray(array));
-		System.out.println(x);
-		x.addOne(9, 5);
-		System.out.println(x);
-		x.subtractOne(0, 20);
-		System.out.println(x);
-		//x.multiplyByZero(0, 6);
-		 x.divideByTwo(0, 1);
-		System.out.println(x);
-		 BinaryToRealVector p = new BinaryToRealVector(16);
-		 //3.941864715E9, 8.7633402E8, 4.16121036E9, 9.32366445E8, 3.77245674E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9
-		 //"1110101011110101001101000011110011111000000010000011011110010011111000001101110011010011101110111101001110111011110100111011101111010011101110111101001110111011"
-		 x = new MarkedBitArray(p.code(new double[]{3.941864715E9, 3.7633402E8, 4.16121036E9, 2.32366445E8, 3.77245674E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9, 3.552193605E9}).toString(), 7, 0);
-	     System.out.println(x);
-	     System.out.println( "+++"+ p.decode(new BitArray(x.toString()))[3] );
-		 x.divideByTwo(48, 16);
-		 System.out.println(x);
-		 System.out.println( "+++"+ p.decode(new BitArray(x.toString()))[3] );
+		//boolean [] array = new boolean[x.size()] ;
+		//Arrays.fill(array, true);
+		//Arrays.fill(array, false);
 		
+		 //BinaryToRealVector p = new BinaryToRealVector(32);
+		// [100.0, -3.75540298150587E-309, -4.457370669181882E-308, 3.658445548993004E-309, -5.828287045482088E-299, -6.44749793167779E-309, -5.059897025072937E-309, -5.89749139226362E-309, -9.214348591037205E-309, -9.10639065539646E-310]
+		/* x = new MarkedBitArray(Utils.doubleToBinary(new double[]{3.658445548993004E-309, 3.658445548993004E-309}), 7);
+	     System.out.println(x);
+	     System.out.println( "+++"+ Arrays.toString(Utils.binaryToDouble(x.toString())));
+	     x.divideByTwo(0, 64);
+	     System.out.println(x);
+	     System.out.println( "+++"+ Arrays.toString(Utils.binaryToDouble(x.toString())));
+	     x.multiplyByTwo(0, 64);
+	     System.out.println(x);
+	     System.out.println( "+++"+ Arrays.toString(Utils.binaryToDouble(x.toString())));
+	     System.out.println(Arrays.toString(Utils.doubleToBinary(new double[]{-3.658445548993004E-309})));
+	     System.out.println("Length: "+Utils.doubleToBinary(new double[]{3.658445548993004E-309}).length);
+	    */ System.out.println(Double.longBitsToDouble( Long.parseUnsignedLong("1000000000000010101000010111010111100001101010101000111101001101",2)));
+	    
+	     x = new MarkedBitArray("1111111111111111111111111111111111111111111111111111111111110000", 7, 0);
+	     System.out.println(x);
+	     System.out.println(Long.parseUnsignedLong(x.toString(),2));
+	     x.addOne(0, 4);
+	     System.out.println(x);
+	     System.out.println(Long.parseUnsignedLong(x.toString(),2));
+	     x.subtractOne(60, 64);
+	     System.out.println(x);
+	     System.out.println(Long.parseUnsignedLong(x.toString(),2));
+	     
+	     //  if (y == 0)  return x; return subtract(x ^ y, (~x & y) << 1); 
 	}
+
 }

@@ -4,7 +4,6 @@ import alife.epimarks.Utils;
 import alife.epimarks.operator.Reader;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.optimization.OptimizationFunction;
-import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
 
 /**
@@ -29,8 +28,9 @@ public class Ackley{
 	   * @return the OptimizationFunction function over the real vector
 	   */
 	  public Double apply(BitArray x ){
-		  
-		double [] genome =  Utils.binaryToDouble(x.toString());
+		
+		double [] genome =  Utils.decode(x.toString(), -32.768, 32.767);
+		//System.out.println(Arrays.toString(genome));
 		
 	    int n = genome.length;
 	    double sum1 = 0.0;
@@ -40,10 +40,11 @@ public class Ackley{
 	      sum1 += genome[i]*genome[i];
 	      sum2 += Math.cos(2.0*Math.PI*genome[i]);
 	    }
+        
 	    sum1 /= n;
 	    sum2 /= n;
-
-	    return (20.0 + Math.exp(1.0) - 20.0*Math.exp(-0.2*Math.sqrt(sum1)) - Math.exp(sum2));
+	    	    
+	    return (- 20.0*Math.exp(-0.2*Math.sqrt(sum1))) - Math.exp(sum2) + 20.0 + Math.exp(1.0);
 	  }
 	  
   }
@@ -51,14 +52,11 @@ public class Ackley{
   public class Extended extends OptimizationFunction<MarkedBitArray> {
 	  
 	  private Reader reader = new Reader();
-	  protected Space<double[]> space;
 	  
 		/**
 		 * 
 		 */
-		public Extended(Space<double[]> space) {
-			this.space = space;
-		}
+		public Extended() {}
 		
 	  /**
 	   * Evaluate the OptimizationFunction function over the real vector given
@@ -68,8 +66,7 @@ public class Ackley{
 	  public Double apply(MarkedBitArray x ){
 		
 		MarkedBitArray xx = reader.readMarks(x);
-		double [] genome =  Utils.binaryToDouble(xx.toString());
-		genome = this.space.repair(genome);
+		double [] genome =  Utils.decode(xx.toString(), -32.768, 32.767);
 			
 	    int n = genome.length;
 	    double sum1 = 0.0;
@@ -79,11 +76,12 @@ public class Ackley{
 	      sum1 += genome[i]*genome[i];
 	      sum2 += Math.cos(2.0*Math.PI*genome[i]);
 	    }
+	    
 	    sum1 /= n;
 	    sum2 /= n;
 
-	    return (20.0 + Math.exp(1.0) - 20.0*Math.exp(-0.2*Math.sqrt(sum1)) - Math.exp(sum2));
-	    //20 + exp(1) - (20 * exp(-0.2 * sqrt( ninverse * sum1))) - exp( ninverse * sum2);
+	    //return (20.0 + Math.exp(1.0) - 20.0*Math.exp(-0.2*Math.sqrt(sum1)) - Math.exp(sum2));
+	    return  (- 20.0*Math.exp(-0.2*Math.sqrt(sum1))) - Math.exp(sum2) + 20.0 + Math.exp(1.0);
 	  }
   }
 

@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import alife.epimarks.Utils;
 import alife.epimarks.types.MarkedBitArray;
+import unalcol.optimization.real.HyperCube;
 import unalcol.random.raw.RawGenerator;
 import unalcol.search.space.Space;
 
@@ -11,9 +12,9 @@ public class VarLengthBinarySpaceTags extends Space<MarkedBitArray> {
 	protected int minLength;
 	protected int maxVarGenes;
 	protected int gene_size;
-	protected int tagsLength = 9;
+	protected int tagsLength = 8;
 	protected boolean fromReal;
-	protected Space<double[]> space;
+	protected HyperCube space;
 	
 	public VarLengthBinarySpaceTags( int minLength, int maxLength){
 		this.minLength = minLength;
@@ -27,7 +28,7 @@ public class VarLengthBinarySpaceTags extends Space<MarkedBitArray> {
 		this.maxVarGenes = (maxLength-minLength)/gene_size;		
 	}
 	
-	public VarLengthBinarySpaceTags(int minLength, int maxLength, Space<double[]> space){
+	public VarLengthBinarySpaceTags(int minLength, int maxLength, HyperCube space){
 		this( minLength, maxLength);
 		this.fromReal = true;
 	    this.space = space;
@@ -48,18 +49,18 @@ public class VarLengthBinarySpaceTags extends Space<MarkedBitArray> {
 		
 	 if(this.fromReal){
 			
-		 double [] genome =  Utils.binaryToDouble(x.toString());
+		 double [] genome = Utils.decode(x.toString(),this.space.min()[0], this.space.max()[0]);
 		 
 		 double [] rgenome = this.space.repair(genome);
 		 
 		 if (!Arrays.equals(rgenome, genome)){
 			 
-			  boolean[] bits = Utils.doubleToBinary(rgenome);
+			  boolean[] bits =  Utils.encodeBool(rgenome, this.space.min()[0], this.space.max()[0]);
 			  
 			  for (int i = 0; i < bits.length; i++) {
 				  x.set(i, bits[i]);
 			  }
-		 }
+		  }
 		}
 		 
 		//TODO keep the tags
@@ -84,10 +85,10 @@ public class VarLengthBinarySpaceTags extends Space<MarkedBitArray> {
 	@Override
 	public MarkedBitArray pick() {
 		
-		if(this.fromReal){  
+		/*if(this.fromReal){  
 			
 	        return new MarkedBitArray(Utils.doubleToBinary(this.space.pick()), this.tagsLength);
-		}
+		}*/
 		
 		return (maxVarGenes>0)?new MarkedBitArray(minLength+RawGenerator.integer(this, maxVarGenes*gene_size), this.tagsLength, true):new MarkedBitArray(minLength, this.tagsLength, true);
 	}

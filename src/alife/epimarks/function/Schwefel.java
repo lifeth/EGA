@@ -1,13 +1,9 @@
 package alife.epimarks.function;
 
-import java.util.Arrays;
-
 import alife.epimarks.Utils;
 import alife.epimarks.operator.Reader;
-import alife.epimarks.tests.HyperCube;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.optimization.OptimizationFunction;
-import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
 
 /**
@@ -42,7 +38,7 @@ public class Schwefel {
 	   */
 	  public Double apply( BitArray x ){
 		
-		double [] genome =  Utils.binaryToDouble(x.toString());
+		double [] genome =  Utils.decode(x.toString(), -500, 499);
 		  
 	    int n = genome.length;
 	    double f = 0.0;
@@ -50,7 +46,7 @@ public class Schwefel {
 	      f += Schwefel.apply(genome[i]);
 	    }
 	    
-	    System.out.println(Arrays.toString(genome));
+	    //System.out.println(Arrays.toString(genome));
 	    
 	    return (418.9829101*n + f);
 	  }  
@@ -59,14 +55,11 @@ public class Schwefel {
   public class Extended extends OptimizationFunction<MarkedBitArray> {
 	  
 	  private Reader reader = new Reader();
-	  protected Space<double[]> space;
 	  
 		/**
 		 * 
 		 */
-		public Extended(Space<double[]> space) {
-			this.space = space;
-		}
+	   public Extended() {}
 	  
 	  /**
 	   * Evaluate the OptimizationFunction function over the real vector given
@@ -76,8 +69,7 @@ public class Schwefel {
 	  public Double apply( MarkedBitArray x ){
 		  
 		MarkedBitArray xx = reader.readMarks(x);
-		double [] genome =  Utils.binaryToDouble(xx.toString());
-		genome = this.space.repair(genome);
+		double [] genome =  Utils.decode(xx.toString(), -500, 499);
 		  
 	    int n = genome.length;
 	    double f = 0.0;
@@ -85,7 +77,7 @@ public class Schwefel {
 	      f += Schwefel.apply(genome[i]);
 	    }
 		
-	    System.out.println(Arrays.toString(genome));
+	   // System.out.println(Arrays.toString(genome));
 	 
 	    return (418.9829101*n + f);
 	  }

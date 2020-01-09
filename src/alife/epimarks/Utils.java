@@ -8,16 +8,14 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
+
+import alife.epimarks.tests.Stats;
 
 /**
  * @author lifeth
  *
  */
 public class Utils {
-
-	private static Random r = new Random();
 
 	/**
 	 * 
@@ -61,140 +59,193 @@ public class Utils {
 	}
 
 	public static int next(int aStart, int aEnd) {
+		Random r = new Random();
 		long range = (long) aEnd - (long) aStart + 1;
 		// compute a fraction of the range, 0 <= frac < range
 		long fraction = (long) (range * r.nextDouble());
 		return (int) (fraction + aStart);
 	}
-
-	public static void timer(int secs) {
-
-		final Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
-			int i = secs;
-
-			public void run() {
-				System.out.println(i--);
-				if (i < 0)
-					timer.cancel();
-			}
-		}, 0, 1000);
-	}
-
-	public static void main(String[] args) {
-		/*
-		 * System.out.println(String.format("%04d",
-		 * Integer.parseInt(Integer.toBinaryString(7))));
-		 * System.out.println(Integer.toBinaryString(7));
-		 * System.out.println(Integer.parseInt("111", 2));
-		 * System.out.println(Utils.decodeGray(7));
-		 * System.out.println(Utils.encodeGray(5));
-		 * System.out.println(IntUtil.grayToBinary(5));
-		 * System.out.println(IntUtil.binaryToGray(5));
-		 * 
-		 * System.out.println("Nº: " + Utils.decodeGray(Integer.parseInt("111",
-		 * 2)));
-		 * 
-		 * Utils.timer(10)
-		 */;
-		try {
-			Utils.computeResults();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void computeResults() throws Exception {
+	
+	public static int BITS = 32;
+	
+	public static double[] decode(String bits, double min, double max){
 		
-        String GA = "extended";
-		String selection = "generational";
-		String file = "plotMO-X10M00MK002.txt";
-		
-		FileInputStream in = new FileInputStream(
-				//new File("/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/"+file));
-				new File("/Users/lifeth/desktop/experiments/HAEAMarking.txt"));
-		
-		Scanner s = new Scanner(in);
-		int i = 0;
-		int it = 1001;
-		int col = 6;
-		int runs = 1;
-		double statictics[][] = new double[it][6];
+	  int index = 0;
+	  
+	  int endIndex = BITS;
+	  
+	  double accuracy = (max - min) / (Math.pow(2, BITS) - 1);
+	  
+	  double[] genome = new double[bits.length()/BITS];
+	  
+	  for (int i = 0; i < genome.length; i++) {
+		  genome[i] = min + Utils.binaryToInt(bits.substring(index, endIndex)) * accuracy;
+		  index = endIndex;
+		  endIndex +=BITS;
+	  }
 
-		while (s.hasNextLine()) {
-			String line = s.nextLine();
-			String[] tokens = line.substring(1).trim().split(" ");
-			
-			for (int y = 0; y < col; y++) {	
-				statictics[i][y] += Double.parseDouble(tokens[y]);
-			}
-
-			i++;
-
-			if (i == it)
-				i = 0;
-		}
-
-		s.close();
-
-		FileWriter plot = new FileWriter(
-				//"/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/processed/"+file);
-				"/Users/lifeth/desktop/experiments/HAEAMarking.txt");
-
-		plot.write("Iteration FMin FMax FMedian FAvg Variance DeStand" + "\n");
-
-		// Statistics
-		for (int x = 0; x < it; x++) {
-			for (int j = 0; j < col; j++) {
-				statictics[x][j] /= runs;
-			}
-
-			//plot.write((x + 1) + " " +  Math.rint(statictics[x][0]) + " " + Math.rint(statictics[x][1]) + " " + Math.rint(statictics[x][2]) + " "
-				//	+ Math.rint(statictics[x][3]) + " " + statictics[x][4] + " " + statictics[x][5] + "\n");
-			
-			plot.write((x + 1) + " " +  statictics[x][0] + " " + statictics[x][1]+ " " + statictics[x][2] + " "
-						+ statictics[x][3] + " " + statictics[x][4] + " " + statictics[x][5] + "\n");
-		}
-
-		plot.close();
+	  return genome;
 	}
 	
-	public static boolean[] doubleToBinary(double [] array){
+	public static int[] encode(double[] real, double min, double max){
 		
-		int BITS_PER_DOUBLE = 64;
-		int start = 0;
-		boolean[] bits = new boolean[array.length*BITS_PER_DOUBLE];
+		int index = 0;
 		
-		for (double d : array) {
-			
-			//if positive the binary string returned is 63 bits or less, otherwise 64.
-			// we need to make sure it is 64 for every double.
-			String binary = Long.toBinaryString(Double.doubleToRawLongBits(d));
-		     // calculate the leading zeroes plus the index where start adding the binary string
-		     start = start + (BITS_PER_DOUBLE - binary.length());
-				
-			for (int i = 0; i < binary.length(); i++) {
-				bits[start] = binary.charAt(i) == '1';
-				start++;
-			}	
-		}
-		
-		return bits;
+		int[] genome = new int[real.length * BITS];
+		 
+		for (int i = 0; i < real.length; i++) {
+			  
+			 System.arraycopy(Utils.encode(real[i], min, max), 0, genome, index, BITS);
+			 index +=BITS; 
+		 }
+
+		return genome;
 	}
 	
-	public static double[] binaryToDouble(String bits)
-	{
-		  int BITS_PER_DOUBLE = 64;
+	public static int[] encode(double real, double min, double max){
+		
+		return Utils.intToBinary( Utils.doubleToInt(real, min, max));
+	}
+	
+	public static boolean[] encodeBool(double[] real, double min, double max){
+		
 		  int index = 0;
-		  int endIndex = BITS_PER_DOUBLE;
-		  double[] genome = new double[bits.length()/BITS_PER_DOUBLE];
 		  
-		  for (int i = 0; i < genome.length; i++) {
-			genome[i] = Double.longBitsToDouble( Long.parseUnsignedLong(bits.substring(index, endIndex), 2));
-			index = endIndex;
-			endIndex +=BITS_PER_DOUBLE;
+		  boolean[] genome = new boolean[real.length * BITS];
+		 
+		  for (int i = 0; i < real.length; i++) {
+			  
+			  System.arraycopy(Utils.encodeBool(real[i], min, max), 0, genome, index, BITS);
+			  index +=BITS; 
 		  }
-		  
+
 		  return genome;
 	}
+	
+    public static boolean[] encodeBool(double real, double min, double max){
+		
+		return Utils.intToBinaryBool( Utils.doubleToInt(real, min, max));
+	}
+	
+	
+	public static long doubleToInt(double real, double min, double max){
+		
+		return Math.round((Math.pow(2, BITS) - 1) * (real - min)/(max - min));
+	}
+	
+	public static long binaryToInt(String bits){
+
+		return Long.parseLong(bits, 2);
+	}
+	 
+	 public static int[] intToBinary(long n) 
+	  { 
+		 int[] binary = new int [BITS];
+
+		 int j = 0;
+		 
+		 for (int i = BITS-1; i >= 0; i--) { 
+            long k = n >> i; 
+			binary[j] = (k & 1) > 0 ? 1 : 0;
+			j++;
+		 }     
+	     return binary;
+	   }
+	 
+	 public static boolean[] intToBinaryBool(long n) 
+	  { 
+		 boolean[] binary = new boolean [BITS];
+		 
+		 int j = 0;
+		 
+	     for (int i = BITS-1; i >= 0; i--) { 
+	            long k = n >> i; 
+				binary[j] = (k & 1) > 0;
+				j++;
+	      } 
+	        
+	        return binary;
+	   }
+	 
+	 public static void computeResults() throws Exception {
+			
+	        String GA = "extended";
+			String selection = "generational";
+			String file = "plotMO-X10M00MK002.txt";
+			
+			FileInputStream in = new FileInputStream(
+					//new File("/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/"+file));
+					new File("/Users/lifeth/desktop/experiments/Real/HAEAMGriewank.txt"));
+			
+			Scanner s = new Scanner(in);
+			int i = 0;
+			int j = 0;
+			int it = 1001;
+			int runs = 30;
+			double matrix[][] = new double[it][runs];
+
+			while (s.hasNextLine()) {
+				String line = s.nextLine();
+				String[] tokens = line.substring(1).trim().split(" ");
+				
+				matrix[i][j] += Double.parseDouble(tokens[0]);
+						
+				i++;
+
+				if (i == it){
+					i = 0;
+					j++;
+				}
+			}
+
+			s.close();
+
+		   FileWriter plot = new FileWriter(
+					//"/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/processed/"+file);
+					"/Users/lifeth/desktop/experiments/extended.txt");
+
+		   plot.write("Iteration FMin FMax FMedian FAvg Variance DeStand" + "\n");
+			
+	       StringBuilder sb = new StringBuilder();
+		   // Statistics
+		   for (int x = 0; x < it; x++) {
+			
+			  sb.append((x + 1));
+			  double[] stats = Stats.statistics_with_median(matrix[x]).get();	
+				   
+			   for (int y = 0; y < stats.length; y++) {
+				   sb.append(" "+stats[y]);
+			    }
+			   
+			   sb.append("\n");
+			   plot.write(sb.toString());
+			   sb.setLength(0);
+		   }
+
+			plot.close();
+		}
+
+		public static void main(String[] args) {
+			/*
+			 * System.out.println(String.format("%04d",
+			 * Integer.parseInt(Integer.toBinaryString(7))));
+			 * System.out.println(Integer.toBinaryString(7));
+			 * System.out.println(Integer.parseInt("111", 2));
+			 * System.out.println(Utils.decodeGray(7));
+			 * System.out.println(Utils.encodeGray(5));
+			 * System.out.println(IntUtil.grayToBinary(5));
+			 * System.out.println(IntUtil.binaryToGray(5));
+			 * 
+			 * System.out.println("Nº: " + Utils.decodeGray(Integer.parseInt("111",
+			 * 2)));
+			 * 
+			 * Utils.timer(10)
+			 */;
+			try {
+				Utils.computeResults();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
 }

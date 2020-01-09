@@ -6,6 +6,7 @@ package alife.epimarks.tests;
 import java.util.Arrays;
 
 import alife.epimarks.Utils;
+import unalcol.optimization.real.HyperCube;
 import unalcol.random.raw.RawGenerator;
 import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
@@ -19,7 +20,7 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 	protected int maxVarGenes;
 	protected int gene_size;
 	protected boolean fromReal;
-	protected Space<double[]> space;
+	protected HyperCube space;
 	
 	public VarLengthBinarySpace( int minLength, int maxLength ){
 		this.minLength = minLength;
@@ -33,7 +34,7 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 		this.maxVarGenes = (maxLength-minLength)/gene_size;		
 	}
 	
-	public VarLengthBinarySpace(int minLength, int maxLength, Space<double[]> space){
+	public VarLengthBinarySpace(int minLength, int maxLength, HyperCube space){
 	  this( minLength, maxLength);
 	  this.fromReal = true;
       this.space = space;
@@ -54,13 +55,13 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 		
 	 if(this.fromReal){
 			
-		 double [] genome =  Utils.binaryToDouble(x.toString());
+		 double [] genome = Utils.decode(x.toString(), this.space.min()[0], this.space.max()[0]);
 		 
 		 double [] rgenome = this.space.repair(genome);
 		 
 		 if (!Arrays.equals(rgenome, genome)){
 			 
-			  boolean[] bits = Utils.doubleToBinary(rgenome);
+			  boolean[] bits =  Utils.encodeBool(rgenome, this.space.min()[0], this.space.max()[0]);
 			  
 			  for (int i = 0; i < bits.length; i++) {
 				  x.set(i, bits[i]);
@@ -82,10 +83,10 @@ public class VarLengthBinarySpace extends Space<BitArray> {
 	@Override
 	public BitArray pick() {
 		
-		if(this.fromReal){  
+		/*if(this.fromReal){  
 			
-	        return new BitArray(Utils.doubleToBinary(this.space.pick()));
-		}
+	       return new BitArray(Utils.doubleToBinary(this.space.pick()));
+		}*/
 		
 		return (maxVarGenes>0)?new BitArray(minLength+RawGenerator.integer(this, maxVarGenes*gene_size), true):new BitArray(minLength, true);
 	}

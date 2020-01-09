@@ -1,12 +1,9 @@
 package alife.epimarks.function;
 
-import java.util.Arrays;
-
 import alife.epimarks.Utils;
 import alife.epimarks.operator.Reader;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.optimization.OptimizationFunction;
-import unalcol.search.space.Space;
 import unalcol.types.collection.bitarray.BitArray;
 
 /**
@@ -61,7 +58,7 @@ public class Bohachevsky {
 	   */
 	  public Double apply( BitArray x ){
 	    
-		double [] genome =  Utils.binaryToDouble(x.toString());
+		double [] genome =  Utils.decode(x.toString(), -100, 99);
 		
 		//System.out.println(Arrays.toString(genome));
 			
@@ -83,14 +80,11 @@ public class Bohachevsky {
   public class Extended extends OptimizationFunction<MarkedBitArray> {
 	  
 	  private Reader reader = new Reader();
-	  protected Space<double[]> space;
 	  
 		/**
 		 * 
 		 */
-		public Extended(Space<double[]> space) {
-			this.space = space;
-		}
+		public Extended() {}
 
 	  /**
 	   * Evaluate the OptimizationFunction function over the real vector given
@@ -100,8 +94,7 @@ public class Bohachevsky {
 	  public Double apply( MarkedBitArray x ){
 	    
 		MarkedBitArray xx = reader.readMarks(x);
-		double [] genome =  Utils.binaryToDouble(xx.toString());
-		genome = this.space.repair(genome);
+		double [] genome =  Utils.decode(xx.toString(), -100, 99);
 		
 		//System.out.println(Arrays.toString(genome));
 

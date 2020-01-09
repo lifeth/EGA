@@ -152,25 +152,6 @@ public class MarkedBitArray implements Cloneable {
 			set(i, source[i]);
 		}
 	}
-
-	/**
-	 * Constructor: Creates a bit array using the boolean values given in the
-	 * string
-	 * 
-	 * @param source
-	 *            The String with the bits that will conform the bit array
-	 */
-	public MarkedBitArray(String source, int l, int some) {
-		n = source.length();
-		this.l= l;
-		int m = getIndex(n) + 1;
-		data = new int[m];
-		epiTags = new char[l][n];
-		//ismarked = new boolean[this.n];
-		for (int i = 0; i < n; i++) {
-			set(i, (source.charAt(i) == '1'));
-		}
-	}
 	
 	/**
 	 * @param source  The String with the bits that will conform the bit array
@@ -958,10 +939,10 @@ public class MarkedBitArray implements Cloneable {
 	 * 000 shift<br>
 	 * 010 set to<br>
 	 * 011 do nothing<br>
-	 * 101 add 1 (OR bit per bit)<br>
+	 * 101 add 1 <br>
 	 * 100 divide by 2 (arithmetic right shift - signed shift)<br>
-	 * 110 multiply by 0 (AND bit per bit)<br>
-	 * 111 subtract 1 (bit per bit)<br>
+	 * 110 multiply by 2 (arithmetic left shift)<br>
+	 * 111 subtract 1 <br>
 	 * 
 	 * @param col
 	 *            The bit index
@@ -983,14 +964,14 @@ public class MarkedBitArray implements Cloneable {
 	 * Returns the tags that represent the Gene Size from a specific position<br>
 	 * 
 	 *  GENE SIZES<br>
-	 *	0001=1 ---  1001=9<br>
-	 *	0010=2 ---  1010=10<br>
-	 *	0011=3 ---  1011=11<br>
-	 *	0100=4 ---  1100=12<br>
-	 *	0101=5 ---  1101=13<br>
-	 *	0110=6 ---  1110=14<br>
-	 *	0111=7 ---  1111=15<br>
-	 *	1000=8 ---  0000=16<br>
+	 *	00001=1 ---  01001=9<br>
+	 *	00010=2 ---  01010=10<br>
+	 *	00011=3 ---  01011=11<br>
+	 *	00100=4 ---  01100=12<br>
+	 *	00101=5 ---  01101=13<br>
+	 *	00110=6 ---  01110=14<br>
+	 *	00111=7 ---  01111=15<br>
+	 *	01000=8 ---  10000=16<br>
 	 * 
 	 * @param col
 	 *            The bit index
@@ -1094,8 +1075,9 @@ public class MarkedBitArray implements Cloneable {
 			end = this.size() - 1;
 		
 		MarkedBitArray sub = this.subMarkedBitArray(index, end+1);
-		long b1 = Long.parseUnsignedLong(sub.toString(), 2);
+		long b1 = Long.parseLong(sub.toString(), 2);
 		long sum = b1 + 1;
+		
 		//returns binary with no leading zeroes
 		String binary = Long.toBinaryString(sum);
 		boolean[] bits = new boolean[binary.length() > sub.n ? binary.length() : sub.n];
@@ -1129,13 +1111,11 @@ public class MarkedBitArray implements Cloneable {
 			end = this.size() - 1;
 		
 		MarkedBitArray sub = this.subMarkedBitArray(index, end+1);
-		long b1 = Long.parseUnsignedLong(sub.toString(), 2);
-		long subtract = b1 - 1;
+		long b1 = Long.parseLong(sub.toString(), 2);
+		long subtract = Math.abs(b1 - 1);
+		
 		//returns binary with no leading zeroes
 		String binary = Long.toBinaryString(subtract);
-		
-		if(subtract == -1)
-			binary = binary.substring(0, sub.n);
 		
 		boolean[] bits = new boolean[sub.n];
 	
@@ -1202,41 +1182,55 @@ public class MarkedBitArray implements Cloneable {
 
 	public boolean isMarked(int col) {
 		return this.epiTags[0][col] != Character.MIN_VALUE;
-	}
+	} 
+	  
 
 	public static void main(String[] args) {
 
-		MarkedBitArray x = new MarkedBitArray(20, true);
-		//boolean [] array = new boolean[x.size()] ;
-		//Arrays.fill(array, true);
-		//Arrays.fill(array, false);
-		
-		 //BinaryToRealVector p = new BinaryToRealVector(32);
-		// [100.0, -3.75540298150587E-309, -4.457370669181882E-308, 3.658445548993004E-309, -5.828287045482088E-299, -6.44749793167779E-309, -5.059897025072937E-309, -5.89749139226362E-309, -9.214348591037205E-309, -9.10639065539646E-310]
-		/* x = new MarkedBitArray(Utils.doubleToBinary(new double[]{3.658445548993004E-309, 3.658445548993004E-309}), 7);
-	     System.out.println(x);
-	     System.out.println( "+++"+ Arrays.toString(Utils.binaryToDouble(x.toString())));
-	     x.divideByTwo(0, 64);
-	     System.out.println(x);
-	     System.out.println( "+++"+ Arrays.toString(Utils.binaryToDouble(x.toString())));
-	     x.multiplyByTwo(0, 64);
-	     System.out.println(x);
-	     System.out.println( "+++"+ Arrays.toString(Utils.binaryToDouble(x.toString())));
-	     System.out.println(Arrays.toString(Utils.doubleToBinary(new double[]{-3.658445548993004E-309})));
-	     System.out.println("Length: "+Utils.doubleToBinary(new double[]{3.658445548993004E-309}).length);
-	    */ System.out.println(Double.longBitsToDouble( Long.parseUnsignedLong("1000000000000010101000010111010111100001101010101000111101001101",2)));
-	    
-	     x = new MarkedBitArray("1111111111111111111111111111111111111111111111111111111111110000", 7, 0);
-	     System.out.println(x);
-	     System.out.println(Long.parseUnsignedLong(x.toString(),2));
-	     x.addOne(0, 4);
-	     System.out.println(x);
-	     System.out.println(Long.parseUnsignedLong(x.toString(),2));
-	     x.subtractOne(60, 64);
-	     System.out.println(x);
-	     System.out.println(Long.parseUnsignedLong(x.toString(),2));
+	    // x.addOne(0, 4);
+	     //x.subtractOne(30, 32);
 	     
+	     //2139095041 2147483647 4286578689 4294967295
 	     //  if (y == 0)  return x; return subtract(x ^ y, (~x & y) << 1); 
+	     
+	     double min = -5.12;
+	     double max =  5.11;
+	     double spaceSize = Math.pow(2, 32) - 1;
+	     double accuracy = (max - min) / spaceSize;
+	    /*for (int i = 0; i <= spaceSize; i++) 
+	     {
+	    	 //1100100
+	    	 //1100100
+	    	 //0011100 
+	    	 // 0    -         65535 ^16
+	    	 // -2147483648  - 2.147.483.647 ^31
+	    	 // 0    -         4.294.967.295 ^32
+	    	 //-5.12 - 5.11
+	    	 //-32.768 - 32.768
+	    	 //-512  - 512
+	    	 //-2.048
+	    	 //-600 [3.250000000000001, -4.8100000000000005, 4.06, -4.73, 1.9299999999999997, 3.9300000000000006, 0.6600000000000001, 3.8999999999999995, 3.3999999999999995, -2.9]
+	    	 double real = min + i * accuracy;
+	    	 long integer =  Math.round(spaceSize * (real - min)/(max - min));
+	    	 System.out.println(" Entero: " + i +" Decoding: "+real + " Encoding: " + integer);
+	    	 System.out.println(Arrays.toString(Utils.intToBinary(integer)));
+	    	 System.out.println(Arrays.toString(Utils.encode(real, min, max)));
+	    	 System.out.println(Arrays.toString(Utils.decode(new MarkedBitArray(Utils.intToBinaryBool(integer)).toString(), min, max)));
+	    	 //System.out.println(Utils.binaryToInt(new MarkedBitArray(Utils.intToBinaryBool(integer)).toString()));
+	     }*/
+	    
+    	 System.out.println(Arrays.toString(Utils.decode("01111101011111110101111111011000", -5.12, 5.11)));
+    	 System.out.println(Arrays.toString(Utils.encode(-0.10499999880907076, -5.12, 5.11)));
+    	 System.out.println(Utils.binaryToInt("01111101011111110101111111011000"));
+    	 System.out.println(Utils.doubleToInt(-0.10499999880907076, -5.12, 5.11));
+    	
+         /*/[1.893095445181964, -3.0818049897001605, -3.1220787365529867, -1.0192584115358203, -0.8483291371023114, -2.28288624399176, -1.1503822384985125, 0.6361799038681619, 0.22969604028381774, -0.04144930189974794]
+	     MarkedBitArray x = new MarkedBitArray(Utils.intToBinaryBool(4294967295l));
+	     System.out.println(x);
+	     x.addOne(0, 31);
+	     System.out.println(x);
+	     x.subtractOne(0, 32);
+	     System.out.println(x);*/
 	}
 
 }

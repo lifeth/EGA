@@ -1220,9 +1220,10 @@ public class MarkedBitArray implements Cloneable {
 	     }*/
 	    
     	 System.out.println(Arrays.toString(Utils.decode("01111101011111110101111111011000", -5.12, 5.11)));
-    	 System.out.println(Arrays.toString(Utils.encode(-0.10499999880907076, -5.12, 5.11)));
+    	 System.out.println(Arrays.toString(Utils.encode(-0.10499999873922139, -5.12, 5.11)));
     	 System.out.println(Utils.binaryToInt("01111101011111110101111111011000"));
-    	 System.out.println(Utils.doubleToInt(-0.10499999880907076, -5.12, 5.11));
+    	 System.out.println(Utils.doubleToInt(-0.10499999873922139, -5.12, 5.11));
+    	 
     	
          /*/[1.893095445181964, -3.0818049897001605, -3.1220787365529867, -1.0192584115358203, -0.8483291371023114, -2.28288624399176, -1.1503822384985125, 0.6361799038681619, 0.22969604028381774, -0.04144930189974794]
 	     MarkedBitArray x = new MarkedBitArray(Utils.intToBinaryBool(4294967295l));

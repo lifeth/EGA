@@ -136,19 +136,19 @@ public class GATest {
     	//moves in the binary space, but computes fitness in the real space
         // Search Space definition
         int DIM = 10;
-        double[] min = DoubleArray.create(DIM, -2.048);
-   		double[] max = DoubleArray.create(DIM,  2.047);
+        double[] min = DoubleArray.create(DIM, -5.12);
+   		double[] max = DoubleArray.create(DIM,  5.11);
    		HyperCube hCube = new HyperCube( min, max );
    		
         Space<BitArray> space = BinarySpace.getVarLengthBinarySpace(DIM*Utils.BITS, hCube);
    
         // Optimization Function
-        //OptimizationFunction<BitArray> function = new Rastrigin().new Classic();  
+        OptimizationFunction<BitArray> function = new Rastrigin().new Classic();  
         //OptimizationFunction<BitArray> function = new Ackley().new Classic();  
         //OptimizationFunction<BitArray> function = new Bohachevsky(true).new Classic();  
         //OptimizationFunction<BitArray> function = new Schwefel().new Classic();  
         //OptimizationFunction<BitArray> function = new Rosenbrock().new Classic(); 
-        OptimizationFunction<BitArray> function = new Griewank().new Classic(); 
+        //OptimizationFunction<BitArray> function = new Griewank().new Classic(); 
         
         Goal<BitArray,Double> goal = new OptimizationGoal<BitArray>(function);  // minimizing, add the parameter false if maximizing       
         
@@ -158,7 +158,7 @@ public class GATest {
         
         EAFactory<BitArray> factory = new EAFactory<BitArray>();
         PopulationSearch<BitArray,Double> search = 
-                factory.generational_ga(POPSIZE, new Tournament<BitArray>(4), mutation, xover, 0.7, MAXITERS );  
+                factory.steady_ga(POPSIZE, new Tournament<BitArray>(4), mutation, xover, 0.6, MAXITERS );  
 
         // Tracking the goal evaluations
         WriteDescriptors write_desc = new WriteDescriptors();
@@ -185,8 +185,8 @@ public class GATest {
         // Search Space definition
         int DIM = 10;
 
-        double[] min = DoubleArray.create(DIM, -600);
-   		double[] max = DoubleArray.create(DIM,  599);
+        double[] min = DoubleArray.create(DIM, -2.048);
+   		double[] max = DoubleArray.create(DIM,  2.047);
    		HyperCube hCube = new HyperCube( min, max );
    		
         Space<MarkedBitArray> space = BinarySpace.getVarLengthBinarySpaceTags(DIM*Utils.BITS, hCube);
@@ -196,8 +196,8 @@ public class GATest {
         //OptimizationFunction<MarkedBitArray> function = new Ackley().new Extended();  
         //OptimizationFunction<MarkedBitArray> function = new Bohachevsky(true).new Extended();  
         //OptimizationFunction<MarkedBitArray> function = new Schwefel().new Extended();  
-        //OptimizationFunction<MarkedBitArray> function = new Rosenbrock().new Extended(); 
-        OptimizationFunction<MarkedBitArray> function = new Griewank().new Extended(); 
+        OptimizationFunction<MarkedBitArray> function = new Rosenbrock().new Extended(); 
+        //OptimizationFunction<MarkedBitArray> function = new Griewank().new Extended(); 
         
         Goal<MarkedBitArray,Double> goal = new OptimizationGoal<MarkedBitArray>(function);  // minimizing, add the parameter false if maximizing       
       
@@ -207,7 +207,7 @@ public class GATest {
 
         EAFactory<MarkedBitArray> factory = new EAFactory<MarkedBitArray>();
         PopulationSearch<MarkedBitArray,Double> search = 
-                factory.generational_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.7, MAXITERS );
+                factory.generational_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.8, MAXITERS );
 
         // Tracking the goal evaluations
         WriteDescriptors write_desc = new WriteDescriptors();
@@ -341,9 +341,9 @@ public class GATest {
 			//evolveGA();
 			//evolveEGA();
 			//real2binary();
-		    //real2binaryEGA();
+		    real2binaryEGA();
 			//binaryHAEA();
-			binaryHAEAMarker();
+			//binaryHAEAMarker();
 			
 	}
 }

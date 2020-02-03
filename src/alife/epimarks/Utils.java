@@ -6,6 +6,7 @@ package alife.epimarks;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -171,11 +172,11 @@ public class Utils {
 			
 	        String GA = "extended";
 			String selection = "generational";
-			String file = "plotMO-X10M00MK002.txt";
+			String file = "plotRR-X06M00MK002.txt";
 			
 			FileInputStream in = new FileInputStream(
-					//new File("/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/"+file));
-					new File("/Users/lifeth/desktop/experiments/Real/HAEAMGriewank.txt"));
+					//new File("/Users/lifeth/desktop/experiments/binary/"+GA+"/"+selection+"/"+file));
+					new File("/Users/lifeth/desktop/experiments/Real/schwefel.txt"));
 			
 			Scanner s = new Scanner(in);
 			int i = 0;
@@ -188,7 +189,7 @@ public class Utils {
 				String line = s.nextLine();
 				String[] tokens = line.substring(1).trim().split(" ");
 				
-				matrix[i][j] += Double.parseDouble(tokens[0]);
+				matrix[i][j] += Double.parseDouble(tokens[0]);//min 0, max 1
 						
 				i++;
 
@@ -199,10 +200,15 @@ public class Utils {
 			}
 
 			s.close();
+			
+		/*	for (int k = 0; k < it; k++) {
+				System.out.println(k+"="+Arrays.toString(matrix[k]));
+				//System.out.println(Arrays.toString(Stats.statistics_with_median(matrix[k]).get()));
+			}*/
 
-		   FileWriter plot = new FileWriter(
-					//"/Users/lifeth/desktop/experiments/"+GA+"/"+selection+"/processed/"+file);
-					"/Users/lifeth/desktop/experiments/extended.txt");
+		  FileWriter plot = new FileWriter(
+					//"/Users/lifeth/desktop/experiments/binary/"+GA+"/"+selection+"/processed/"+file);
+					"/Users/lifeth/desktop/experiments/classic.txt");
 
 		   plot.write("Iteration FMin FMax FMedian FAvg Variance DeStand" + "\n");
 			

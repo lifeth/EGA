@@ -12,14 +12,14 @@ public class GAStep<T> extends VariationReplacePopulationSearch<T,Double> implem
 	
     public GAStep( int mu, Selection<T> selection,
     		Variation_1_1<T> mutation, Variation_2_2<T> xover,
-            double probability, MarkingVariation_1_1<T> marking, PopulationReplacement<T> replace ) {
+            double probability, MarkingVariation<T> marking, PopulationReplacement<T> replace ) {
     	
     	super( mu, new GAVariation<T>(selection, mutation, xover, probability, marking), replace);
     } 
     
     public GAStep( int mu, Selection<T> selection,
     		Variation_1_1<T> mutation, Variation_2_2<T> xover,
-            double probability, MarkingVariation_1_1<T> marking, boolean generational ) {
+            double probability, MarkingVariation<T> marking, boolean generational ) {
     	
     	super( 	mu, new GAVariation<T>(selection, mutation, xover, probability, marking), 
     			generational?new Generational<T>():new TotalSelectionReplacement<T>());

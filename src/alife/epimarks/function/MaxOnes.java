@@ -6,46 +6,27 @@ package alife.epimarks.function;
 import alife.epimarks.operator.Reader;
 import alife.epimarks.types.MarkedBitArray;
 import unalcol.optimization.OptimizationFunction;
-import unalcol.types.collection.bitarray.BitArray;
 
 /**
  * @author lifeth
  *
  */
-public class MaxOnes{
+public class MaxOnes extends OptimizationFunction<MarkedBitArray>{
 	
-	public class Classic extends OptimizationFunction<BitArray>{
-		
-		@Override
-		public Double apply(BitArray x) {
-			
-			double f = 0.0;
-			for (int i = 0; i < x.size(); i++) {
-				if (x.get(i)) {
-					f++;
-				}
-			}
-			return f;
-		}
-	}
+	private Reader reader = new Reader();
 	
-	public class Extended extends OptimizationFunction<MarkedBitArray>{
+	@Override
+	public Double apply(MarkedBitArray x) {
 		
-		private Reader reader = new Reader();
-
-		@Override
-		public Double apply(MarkedBitArray x) {
-			
-			MarkedBitArray xx = reader.readMarks(x);
-			
-			double f = 0.0;
-			for (int i = 0; i < xx.size(); i++) {
-				if (xx.get(i)) {
-					f++;
-				}
+		MarkedBitArray xx = x.isClassic() ? x : reader.readMarks(x);
+		
+		double f = 0.0;
+		for (int i = 0; i < xx.size(); i++) {
+			if (xx.get(i)) {
+				f++;
 			}
-			
-			return f;
 		}
+		
+		return f;
 	}
 }

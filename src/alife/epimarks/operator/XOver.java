@@ -49,14 +49,6 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 			char[][] tags_child1 = new char[child1.getEpiTagsLength()][];
 			char[][] tags_child2 = new char[child1.getEpiTagsLength()][];
 			
-			/*char[][] tags_child1 = { child2_2.getEpiTags()[0].clone(), child2_2.getEpiTags()[1].clone(),
-									 child2_2.getEpiTags()[2].clone(), child2_2.getEpiTags()[3].clone(), 
-									 child2_2.getEpiTags()[4].clone() };
-
-			char[][] tags_child2 = { child1_2.getEpiTags()[0].clone(), child1_2.getEpiTags()[1].clone(),
-									 child1_2.getEpiTags()[2].clone(), child1_2.getEpiTags()[3].clone(), 
-									 child1_2.getEpiTags()[4].clone() };*/
-			
 			for (int i = 0; i < child1.getEpiTagsLength(); i++) {
 				tags_child1[i] = child2_2.getEpiTags()[i].clone();
 				tags_child2[i] = child1_2.getEpiTags()[i].clone();
@@ -70,21 +62,6 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 				System.arraycopy(child2_2.getEpiTags()[i], crossOverPoint, tags_child2[i], crossOverPoint,
 						child2_2.getEpiTags()[i].length - crossOverPoint);
 			}
-
-			/*
-			 * boolean [] ismarked1 = child2_2.getIsMarked().clone(); boolean []
-			 * ismarked2 = child1_2.getIsMarked().clone();
-			 * 
-			 * System.arraycopy(child1_2.getIsMarked(), crossOverPoint,
-			 * ismarked1, crossOverPoint,
-			 * child1_2.getIsMarked().length-crossOverPoint);
-			 * 
-			 * System.arraycopy(child2_2.getIsMarked(), crossOverPoint,
-			 * ismarked2, crossOverPoint,
-			 * child2_2.getIsMarked().length-crossOverPoint);
-			 * 
-			 * child1_2.setIsmarked(ismarked1); child2_2.setIsmarked(ismarked2);
-			 */
 
 			child1_2.setEpiTags(tags_child1);
 			child2_2.setEpiTags(tags_child2);
@@ -116,23 +93,23 @@ public class XOver extends Variation_2_2<MarkedBitArray> {
 	public static void main(String[] args) {
 
 		XOver xo = new XOver();
-		MarkedBitArray x = new MarkedBitArray(10, 5, true);
+		MarkedBitArray x = new MarkedBitArray(10, 0, true);
 
-		x.setEpiTags(new char[][] { 
+		/*x.setEpiTags(new char[][] { 
 				{ '1', '1', '0', '1', '1', '1', '1', '0', '1', '1' },
 				{ '0', '0', '1', '0', '1', '1', '1', '0', '1', '1' },
 				{ '1', '1', '1', '1', '0', '1', '1', '1', '1', '0' },
 				{ '1', '1', '0', '1', '1', '1', '1', '0', '1', '1' },
-				{ '1', '1', '0', '1', '1', '1', '1', '0', '1', '1' } });
+				{ '1', '1', '0', '1', '1', '1', '1', '0', '1', '1' } });*/
 
-		MarkedBitArray y = new MarkedBitArray(10, 5, true);
+		MarkedBitArray y = new MarkedBitArray(10, 0, true);
 
-		y.setEpiTags(new char[][] { 
+		/*y.setEpiTags(new char[][] { 
 				{ '1', '0', '0', '1', '1', '0', '1', '0', '1', '1' },
 				{ '0', '0', '0', '1', '1', '1', '1', '0', '1', '1' },
 				{ '0', '0', '1', '1', '1', '1', '1', '0', '0', '1' },
 				{ '0', '0', '1', '1', '1', '1', '1', '0', '0', '1' },
-				{ '0', '0', '1', '1', '1', '1', '1', '0', '0', '1' }});
+				{ '0', '0', '1', '1', '1', '1', '1', '0', '0', '1' }});*/
 		
 		MarkedBitArray children[] = xo.apply(x, y);
 		

@@ -15,7 +15,7 @@ public abstract class AMarksReader<T> {
 	 * the interpretation of the genome and tags. The returned object is used to 
 	 * calculate the fitness.
 	 * @param x
-	 * @return Only the active genes with not tags after interpreting them.
+	 * @return Phenotype to be evaluated.
 	 */
 	public abstract T readMarks(T x);
 

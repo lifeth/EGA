@@ -21,7 +21,7 @@ import unalcol.types.integer.IntUtil;
  */
 
 public class MarkedBitArray implements Cloneable {
-
+	
 	/**
 	 * Matrix with tags per each bit in the data bit array. Each column
 	 * corresponds to the epiTags of a bit. Each row contains a tag 1 or 0, each row
@@ -33,8 +33,6 @@ public class MarkedBitArray implements Cloneable {
 	 * The tag length in binary string
 	 */
 	protected int l;
-
-	//protected boolean ismarked[];
 
 	/**
 	 * Integer array used to store the bits
@@ -103,13 +101,11 @@ public class MarkedBitArray implements Cloneable {
 			l = source.l;
 			data = new int[source.data.length];
 			epiTags = new char[l][n];
-			//ismarked = new boolean[this.n];
 
 			for (int i = 0; i < source.data.length; i++) {
 				data[i] = source.data[i];
 			}
 			for (int i = 0; i < n; i++) {
-				//ismarked[i] = source.ismarked[i];
 				for (int j = 0; j < l; j++) {
 					epiTags[j][i] = source.epiTags[j][i];
 				}
@@ -128,7 +124,6 @@ public class MarkedBitArray implements Cloneable {
 		n = source.length;
 		int m = getIndex(n) + 1;
 		data = new int[m];
-		//ismarked = new boolean[this.n];
 		for (int i = 0; i < n; i++) {
 			set(i, source[i]);
 		}
@@ -147,7 +142,6 @@ public class MarkedBitArray implements Cloneable {
 		int m = getIndex(n) + 1;
 		data = new int[m];
 		epiTags = new char[l][n];
-		//ismarked = new boolean[this.n];
 		for (int i = 0; i < n; i++) {
 			set(i, source[i]);
 		}
@@ -182,7 +176,6 @@ public class MarkedBitArray implements Cloneable {
 			for (int i = 0; i < ts.length(); i++) {
 				this.epiTags[i][j] = ts.charAt(i);
 			}
-
 		}
 	}
 
@@ -1183,7 +1176,15 @@ public class MarkedBitArray implements Cloneable {
 	public boolean isMarked(int col) {
 		return this.epiTags[0][col] != Character.MIN_VALUE;
 	} 
-	  
+	
+	/**
+	 * By default the marking process will not be performed.
+	 * 
+	 * @return the isClassic
+	 */
+	public boolean isClassic() {
+		return l == 0 ? true : false;
+	}  
 
 	public static void main(String[] args) {
 

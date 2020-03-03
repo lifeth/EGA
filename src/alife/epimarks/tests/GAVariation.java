@@ -14,12 +14,11 @@ public class GAVariation<T> extends Variation<T>{
 	protected Selection<T> selection;
     protected Variation_1_1<T> mutation;
     protected Variation_2_2<T> xover;
-    protected MarkingVariation_1_1<T> marking;
+    protected MarkingVariation<T> marking;
     protected RandBool generator;
-    int iteration = 0;
 
     public GAVariation( Selection<T> selection, Variation_1_1<T> mutation,
-    		Variation_2_2<T> xover, double probability, MarkingVariation_1_1<T> marking) {
+    		Variation_2_2<T> xover, double probability, MarkingVariation<T> marking) {
     	this.selection = selection;
         this.xover = xover;
         this.mutation = mutation;
@@ -31,7 +30,9 @@ public class GAVariation<T> extends Variation<T>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public Solution<T>[] apply(Solution<T>... pop) {
-		iteration++;
+		
+		this.marking.increment();
+		
 		//Shuffle<Solution<T>> shuffle = new Shuffle<Solution<T>>();
 		//shuffle.apply(pop);
 		pop = selection.pick(pop.length, pop);
@@ -53,8 +54,8 @@ public class GAVariation<T> extends Variation<T>{
             	offspring = mutation.apply(xover.apply(parents));
             	
             	//Marking...
-            	if(offspring[0].object() instanceof MarkedBitArray && 
-            			iteration >= 400 && iteration <= 800){	
+            	if(!((MarkedBitArray)offspring[0].object()).isClassic() &&
+            			 marking.isMarkingPeriodOn()){
             		
                 	offspring = marking.apply(offspring);
             	}
@@ -67,9 +68,6 @@ public class GAVariation<T> extends Variation<T>{
             
             for( int i=0; i<offspring.length; i++){
             	buffer.add(offspring[i]);
-            	//MarkedBitArray mba = (MarkedBitArray)offspring[i].object();
-            	//System.out.println(mba.toStringTags()+": "+offspring[i].info(Goal.class.getName()));
-    			//System.out.println(Arrays.toString(genome));
             }
         }
         return buffer.toArray();

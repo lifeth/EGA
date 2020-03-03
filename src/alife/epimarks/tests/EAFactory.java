@@ -1,6 +1,8 @@
 package alife.epimarks.tests;
 
 import alife.epimarks.operator.Marking;
+import unalcol.algorithm.iterative.ForLoopCondition;
+import unalcol.evolution.haea.HaeaOperators;
 import unalcol.math.logic.Predicate;
 import unalcol.search.population.IterativePopulationSearch;
 import unalcol.search.population.Population;
@@ -44,4 +46,16 @@ public class EAFactory<T> extends unalcol.evolution.EAFactory<T>{
 						tC );
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public PopulationSearch<T,Double> HAEA_Generational( int mu, HaeaOperators<T> operators, Selection<T> selection, int MAXITERS ){
+		return new IterativePopulationSearch<T,Double>( new HaeaStep(mu,selection,operators, new Marking(0.02), false) , 
+				new ForLoopCondition<Population<T>>(MAXITERS));
+	}	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public PopulationSearch<T,Double> HAEA( int mu, HaeaOperators<T> operators, Selection<T> selection, Predicate<Population<T>> tC ){
+		return  new IterativePopulationSearch<T,Double>( new HaeaStep(mu,selection,operators, new Marking(0.02)), tC );
+	}
 }

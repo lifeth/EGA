@@ -15,6 +15,8 @@ import unalcol.optimization.OptimizationFunction;
 public class Rastrigin extends OptimizationFunction<MarkedBitArray>{
 	
 	private Reader reader = new Reader();
+	public static double MIN = -5.12;
+	public static double MAX = 5.11;
 	
 	/**
 	 * Constructor: Creates a Rastrigin function Variables should be in the
@@ -45,7 +47,7 @@ public class Rastrigin extends OptimizationFunction<MarkedBitArray>{
 		
 		MarkedBitArray xx = x.isClassic() ? x : reader.readMarks(x);
 		
-		double [] genome =  Utils.decode(xx.toString(), -5.12, 5.11);
+		double [] genome =  Utils.decode(xx.toString(), MIN, MAX);
 		
 		int n = genome.length;
 		double f = 0.0;

@@ -13,6 +13,8 @@ import unalcol.optimization.OptimizationFunction;
 public class Bohachevsky extends OptimizationFunction<MarkedBitArray>{
 	
    private Reader reader = new Reader();
+   public static double MIN = -100;
+   public static double MAX = 99;
 
   /**
    * True if it is the first Bohachevsky function , false if it is the second
@@ -57,7 +59,7 @@ public class Bohachevsky extends OptimizationFunction<MarkedBitArray>{
 	    
 		MarkedBitArray xx = x.isClassic() ? x : reader.readMarks(x);
 		  
-		double [] genome =  Utils.decode(xx.toString(), -100, 99);
+		double [] genome =  Utils.decode(xx.toString(), MIN, MAX);
 		
 	    double f = 0.0;
 	    int n = genome.length - 1;

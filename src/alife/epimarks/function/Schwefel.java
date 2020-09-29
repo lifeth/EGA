@@ -13,7 +13,9 @@ import unalcol.optimization.OptimizationFunction;
 public class Schwefel extends OptimizationFunction<MarkedBitArray>{
 
 	  private Reader reader = new Reader();
-	  
+	  public static double MIN = -500;
+	  public static double MAX = 499;
+	   
 	/**
 	 * Constructor: Creates a Schwefel function
 	 * [-500, 500] interval
@@ -39,7 +41,7 @@ public class Schwefel extends OptimizationFunction<MarkedBitArray>{
 		  
 		MarkedBitArray xx = x.isClassic() ? x : reader.readMarks(x);
 		  
-		double [] genome =  Utils.decode(xx.toString(), -500, 499);
+		double [] genome =  Utils.decode(xx.toString(), MIN, MAX);
 		  
 	    int n = genome.length;
 	    double f = 0.0;

@@ -13,6 +13,8 @@ import unalcol.optimization.OptimizationFunction;
 public class Ackley extends OptimizationFunction<MarkedBitArray>{
 
 	private Reader reader = new Reader();
+	public static double MIN = -32.768;
+	public static double MAX = 32.767;
 
 	/**
 	 * Constructor: Creates a Ackley function
@@ -30,7 +32,7 @@ public class Ackley extends OptimizationFunction<MarkedBitArray>{
 		
 		MarkedBitArray xx = x.isClassic() ? x : reader.readMarks(x);
 
-		double [] genome =  Utils.decode(xx.toString(), -32.768, 32.767);
+		double [] genome =  Utils.decode(xx.toString(), MIN, MAX);
 			
 	    int n = genome.length;
 	    double sum1 = 0.0;

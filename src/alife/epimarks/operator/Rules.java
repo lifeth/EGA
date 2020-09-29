@@ -35,13 +35,13 @@ public class Rules {
 		switch (rule) {
 		
 		//OPERATIONS
-		//001 transpose
 		//000 circular shift
+		//001 transpose
 		//010 set to
 		//011 do nothing
+		//100 arithmetic right shift by 1.
 		//101 add 1
-		//100 divide by 2
-		//110 multiply by 2
+		//110 arithmetic left shift by 1 
 		//111 subtract 1 
 
 		case 0:// 000
@@ -49,7 +49,7 @@ public class Rules {
 
 				@Override
 				public MarkedBitArray apply(MarkedBitArray x, int... i) {
-					x.rightShift(i[0], i[1]);
+					x.circularShift(i[0], i[1]);
 					return x;
 				}
 			};
@@ -59,7 +59,7 @@ public class Rules {
 
 				@Override
 				public MarkedBitArray apply(MarkedBitArray x, int... i) {
-					x.rightRotate(i[0], i[1]);
+					x.transpose(i[0], i[1]);
 					return x;
 				}
 			};
@@ -88,7 +88,7 @@ public class Rules {
 
 				@Override
 				public MarkedBitArray apply(MarkedBitArray x, int... i) {
-					x.divideByTwo(i[0], i[1]);
+					x.rightShiftByOne(i[0], i[1]);
 					return x;
 				}
 			};
@@ -108,7 +108,7 @@ public class Rules {
 
 				@Override
 				public MarkedBitArray apply(MarkedBitArray x, int... i) {
-					x.multiplyByTwo(i[0], i[1]);
+					x.leftShiftByOne(i[0], i[1]);
 					return x;
 				}
 			};

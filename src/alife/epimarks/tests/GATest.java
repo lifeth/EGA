@@ -5,11 +5,16 @@
 package alife.epimarks.tests;
 
 import alife.epimarks.Utils;
+import alife.epimarks.function.Ackley;
 import alife.epimarks.function.Deceptive;
+import alife.epimarks.function.EvenParOne;
 import alife.epimarks.function.Deceptive4;
 import alife.epimarks.function.Griewank;
 import alife.epimarks.function.MaxOnes;
+import alife.epimarks.function.Rastrigin;
+import alife.epimarks.function.Rosenbrock;
 import alife.epimarks.function.RoyalRoad;
+import alife.epimarks.function.Schwefel;
 import alife.epimarks.operator.BitMutation;
 import alife.epimarks.operator.Transposition;
 import alife.epimarks.operator.XOver;
@@ -26,6 +31,7 @@ import unalcol.search.Goal;
 import unalcol.search.population.Population;
 import unalcol.search.population.PopulationSearch;
 import unalcol.search.selection.Tournament;
+import unalcol.search.solution.Solution;
 import unalcol.search.space.Space;
 import unalcol.search.variation.Variation_1_1;
 import unalcol.tracer.ConsoleTracer;
@@ -48,10 +54,11 @@ public class GATest {
         Space<MarkedBitArray> space =  BinarySpace.getVarLengthBinarySpaceTags(DIM, false);
         
         // Optimization Function
- 	   	//OptimizationFunction<MarkedBitArray> function = new Deceptive();
-        //OptimizationFunction<MarkedBitArray> function = new Deceptive4();//352
-        //OptimizationFunction<MarkedBitArray> function = new RoyalRoad(); //384
-        OptimizationFunction<MarkedBitArray> function = new MaxOnes();       
+ 	   	OptimizationFunction<MarkedBitArray> function = new Deceptive();
+        //OptimizationFunction<MarkedBitArray> function = new Deceptive4();
+        //OptimizationFunction<MarkedBitArray> function = new RoyalRoad();
+        //OptimizationFunction<MarkedBitArray> function = new MaxOnes();  
+        //OptimizationFunction<MarkedBitArray> function = new EvenParOne();  
         Goal<MarkedBitArray,Double> goal = new OptimizationGoal<MarkedBitArray>(function, false);     
         
         // Variation definition
@@ -60,7 +67,7 @@ public class GATest {
 
         EAFactory<MarkedBitArray> factory = new EAFactory<MarkedBitArray>();
         PopulationSearch<MarkedBitArray,Double> search = 
-                factory.generational_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.6, MAXITERS );
+                factory.steady_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.6, MAXITERS );
 
         // Tracking the goal evaluations
         WriteDescriptors write_desc = new WriteDescriptors();
@@ -88,19 +95,17 @@ public class GATest {
         // Search Space definition
         int DIM = 10;
 
-        double[] min = DoubleArray.create(DIM, -600);
-   		double[] max = DoubleArray.create(DIM,  599);
-   		HyperCube hCube = new HyperCube( min, max );
-   		
-        Space<MarkedBitArray> space = BinarySpace.getVarLengthBinarySpaceTags(DIM*Utils.BITS, hCube, false);
+        Space<MarkedBitArray> space = 
+        	    BinarySpace.getVarLengthBinarySpaceTags(DIM*Utils.BITS, 
+               		 hCube(DIM, Rastrigin.MIN, Rastrigin.MAX), false);
         
         // Optimization Function   
-        //OptimizationFunction<MarkedBitArray> function = new Rastrigin(); 
+        OptimizationFunction<MarkedBitArray> function = new Rastrigin(); 
         //OptimizationFunction<MarkedBitArray> function = new Ackley(); NO
         //OptimizationFunction<MarkedBitArray> function = new Bohachevsky(true); NO 
         //OptimizationFunction<MarkedBitArray> function = new Schwefel();  
         //OptimizationFunction<MarkedBitArray> function = new Rosenbrock(); 
-        OptimizationFunction<MarkedBitArray> function = new Griewank(); 
+        //OptimizationFunction<MarkedBitArray> function = new Griewank(); 
         
         Goal<MarkedBitArray,Double> goal = new OptimizationGoal<MarkedBitArray>(function);  // minimizing, add the parameter false if maximizing       
       
@@ -110,7 +115,7 @@ public class GATest {
 
         EAFactory<MarkedBitArray> factory = new EAFactory<MarkedBitArray>();
         PopulationSearch<MarkedBitArray,Double> search = 
-                factory.steady_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.7, MAXITERS );
+                factory.generational_ga(POPSIZE, new Tournament<MarkedBitArray>(4), mutation, xover, 0.6, MAXITERS );
 
         // Tracking the goal evaluations
         WriteDescriptors write_desc = new WriteDescriptors();
@@ -125,41 +130,40 @@ public class GATest {
         Tracer.addTracer(search, tracer);
         
         // Apply the search method        
-       // Solution<MarkedBitArray> solution = 
+        Solution<MarkedBitArray> solution = 
         search.solve(space, goal);
         
-        //System.out.println(solution.object()+": "+solution.info(Goal.class.getName()));
-        //System.out.println(solution.object().toStringTags());
+        System.out.println(solution.object()+": "+solution.info(Goal.class.getName()));
+        System.out.println(solution.object().toStringTags());
     }
 	
 	public static void binaryHAEA(){
 		// Search Space definition
 		int DIM = 10;
-        double[] min = DoubleArray.create(DIM, -600);
-   		double[] max = DoubleArray.create(DIM,  599);
-   		HyperCube hCube = new HyperCube( min, max );
    		
-        Space<MarkedBitArray> space = BinarySpace.getVarLengthBinarySpaceTags(DIM*Utils.BITS, hCube, false);
+        Space<MarkedBitArray> space = 
+         BinarySpace.getVarLengthBinarySpaceTags(DIM*Utils.BITS, 
+        		 hCube(DIM, Rastrigin.MIN, Rastrigin.MAX), false);
    
         // Optimization Function
-        //OptimizationFunction<MarkedBitArray> function = new Rastrigin(); 
-        //OptimizationFunction<MarkedBitArray> function = new Ackley();  NO
-        //OptimizationFunction<MarkedBitArray> function = new Bohachevsky(true); NO
-        //OptimizationFunction<MarkedBitArray> function = new Schwefel();  
-        //OptimizationFunction<MarkedBitArray> function = new Rosenbrock(); 
-        OptimizationFunction<MarkedBitArray> function = new Griewank();
+        OptimizationFunction<MarkedBitArray> function = new Rastrigin(); 
+       // OptimizationFunction<MarkedBitArray> function = new Schwefel(); 
+        //OptimizationFunction<MarkedBitArray> function = new Griewank();
+	   	//OptimizationFunction<MarkedBitArray> function = new Deceptive();
+        //OptimizationFunction<MarkedBitArray> function = new Deceptive4();
+
         Goal<MarkedBitArray,Double> goal = new OptimizationGoal<MarkedBitArray>(function);  // minimizing, add the parameter false if maximizing    
     	
     	// Variation definition
         Variation_1_1<MarkedBitArray> mutation = new BitMutation();
         XOver xover = new XOver();        
-    	Variation_1_1<MarkedBitArray> transposition = new Transposition();
-    	HaeaOperators<MarkedBitArray> operators = new SimpleHaeaOperators<MarkedBitArray> (mutation, transposition, xover);
+    	//Variation_1_1<MarkedBitArray> transposition = new Transposition();
+    	HaeaOperators<MarkedBitArray> operators = new SimpleHaeaOperators<MarkedBitArray> (mutation, xover);
         
         // Search method
         EAFactory<MarkedBitArray> factory = new EAFactory<MarkedBitArray>();
         PopulationSearch<MarkedBitArray,Double> search = 
-        		factory.HAEA_Generational(POPSIZE, operators, new Tournament<MarkedBitArray>(4), MAXITERS );
+        		factory.HAEA_Generational(POPSIZE, operators, new Tournament<MarkedBitArray>(4), MAXITERS);
 
         // Tracking the goal evaluations
         WriteDescriptors write_desc = new WriteDescriptors();
@@ -183,11 +187,15 @@ public class GATest {
         search.solve(space, goal);
 	}
 	
+	public static HyperCube hCube(int DIM, double min, double max){
+   		return new HyperCube(DoubleArray.create(DIM, min), DoubleArray.create(DIM, max));
+	}
+	
 	public static void main(String[] args) throws Exception {
 	
-		for (int i = 0; i < 30; i++)
-			 evolveEGA();
-		     //real2binaryEGA();
+		for (int i = 0; i < 1; i++)
+			//evolveEGA();
+		    real2binaryEGA();
 			//binaryHAEA();
 			
 	}

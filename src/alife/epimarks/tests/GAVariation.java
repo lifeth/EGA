@@ -65,6 +65,8 @@ public class GAVariation<T> extends Variation<T>{
             	for (int i = 0; i < n; i++) 
                     offspring[i] = parents[i];
             }
+
+           // System.out.println(((MarkedBitArray)offspring[0].object()).toStringTags());
             
             for( int i=0; i<offspring.length; i++){
             	buffer.add(offspring[i]);

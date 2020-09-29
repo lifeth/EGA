@@ -984,11 +984,12 @@ public class MarkedBitArray implements Cloneable {
 
 	/**
 	 * Transpose
+	 * right rotation
 	 * 
 	 * @param index starting position
 	 * @param k bits
 	 */
-	public void rightRotate(int index, int k) {
+	public void transpose(int index, int k) {
 		
 		char[] clone = this.toString().toCharArray();
 		int end = index + (k-1);//including the bit
@@ -1004,12 +1005,12 @@ public class MarkedBitArray implements Cloneable {
 	}
 
 	/**
-	 * Circular shift
+	 * Circular right shift
 	 * 
 	 * @param index starting position
 	 * @param k bits
 	 */
-	public void rightShift(int index, int k) {
+	public void circularShift(int index, int k) {
 		
 		char[] clone = this.toString().toCharArray();
 		int end = index + k;//including the bit
@@ -1058,7 +1059,7 @@ public class MarkedBitArray implements Cloneable {
 	/**
 	 * Add ONE
 	 * @param index
-	 * @param k
+	 * @param k gene size
 	 */
 	public void addOne(int index, int k)
 	{
@@ -1073,16 +1074,14 @@ public class MarkedBitArray implements Cloneable {
 		
 		//returns binary with no leading zeroes
 		String binary = Long.toBinaryString(sum);
+	     
 		boolean[] bits = new boolean[binary.length() > sub.n ? binary.length() : sub.n];
-	
+		
 		int j = bits.length-1;
-	     for (int i = binary.length()-1; i >= 0 ; i--) {
+	    for (int i = binary.length()-1; i >= 0 ; i--) {
 		    bits[j] = binary.charAt(i) == '1';
 		    j--;
 		 }	
-		
-	     if(binary.length() > sub.n && end < this.size() - 1)
-	    	 end++;
 	     
 		j = 0;
 		for (int i = index; i <= end ; i++) {
@@ -1094,7 +1093,7 @@ public class MarkedBitArray implements Cloneable {
 	/**
 	 * Subtract ONE
 	 * @param index
-	 * @param k
+	 * @param k gene size
 	 */
 	public void subtractOne(int index, int k)
 	{
@@ -1113,7 +1112,7 @@ public class MarkedBitArray implements Cloneable {
 		boolean[] bits = new boolean[sub.n];
 	
 		int j = bits.length-1;
-	     for (int i = binary.length()-1; i >= 0 ; i--) {
+	    for (int i = binary.length()-1; i >= 0 ; i--) {
 		    bits[j] = binary.charAt(i) == '1';
 		    j--;
 		 }	
@@ -1127,11 +1126,12 @@ public class MarkedBitArray implements Cloneable {
 	
 	/**
 	 * Arithmetic left shift - signed shift.
+	 * multiplyByTwo
 	 * 
 	 * @param index
-	 * @param k
+	 * @param k gene size
 	 */
-	public void multiplyByTwo(int index, int k)
+	public void leftShiftByOne(int index, int k)
 	{
 		int end = index + (k-1);//including the bit
 		
@@ -1149,11 +1149,12 @@ public class MarkedBitArray implements Cloneable {
 	
 	/**
 	 * Arithmetic right shift - signed shift.
+	 * divideByTwo
 	 * 
 	 * @param index
-	 * @param k
+	 * @param k gene size
 	 */
-	public void divideByTwo(int index, int k)
+	public void rightShiftByOne(int index, int k)
 	{
 		int end = index + (k-1);//including the bit
 			
@@ -1194,10 +1195,10 @@ public class MarkedBitArray implements Cloneable {
 	     //2139095041 2147483647 4286578689 4294967295
 	     //  if (y == 0)  return x; return subtract(x ^ y, (~x & y) << 1); 
 	     
-	     double min = -5.12;
+	    /* double min = -5.12;
 	     double max =  5.11;
 	     double spaceSize = Math.pow(2, 32) - 1;
-	     double accuracy = (max - min) / spaceSize;
+	    // double accuracy = (max - min) / spaceSize;
 	    /*for (int i = 0; i <= spaceSize; i++) 
 	     {
 	    	 //1100100
@@ -1226,13 +1227,16 @@ public class MarkedBitArray implements Cloneable {
     	 System.out.println(Utils.doubleToInt(-0.10499999873922139, -5.12, 5.11));
     	 
     	
-         /*/[1.893095445181964, -3.0818049897001605, -3.1220787365529867, -1.0192584115358203, -0.8483291371023114, -2.28288624399176, -1.1503822384985125, 0.6361799038681619, 0.22969604028381774, -0.04144930189974794]
-	     MarkedBitArray x = new MarkedBitArray(Utils.intToBinaryBool(4294967295l));
+         //[1.893095445181964, -3.0818049897001605, -3.1220787365529867, -1.0192584115358203, -0.8483291371023114, -2.28288624399176, -1.1503822384985125, 0.6361799038681619, 0.22969604028381774, -0.04144930189974794]
+	     MarkedBitArray x = new MarkedBitArray(Utils.intToBinaryBool(0), 8);
 	     System.out.println(x);
-	     x.addOne(0, 31);
+	     x.addOne(0, 2);
 	     System.out.println(x);
-	     x.subtractOne(0, 32);
-	     System.out.println(x);*/
+	     
+	     System.out.println(x);
+	     x.subtractOne(0, 3);
+	     
+	     System.out.println(x);
 	}
 
 }

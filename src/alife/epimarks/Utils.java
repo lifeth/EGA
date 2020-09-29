@@ -4,13 +4,18 @@
 package alife.epimarks;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 import alife.epimarks.tests.Stats;
+import unalcol.types.real.array.DoubleArray;
 
 /**
  * @author lifeth
@@ -169,52 +174,36 @@ public class Utils {
 	   }
 	 
 	 public static void computeResults() throws Exception {
-			
-	        String GA = "extended";
-			String selection = "generational";
-			String file = "plotRR-X06M00MK002.txt";
-			
-			FileInputStream in = new FileInputStream(
-					//new File("/Users/lifeth/desktop/experiments/binary/"+GA+"/"+selection+"/"+file));
-					new File("/Users/lifeth/desktop/experiments/Real/schwefel.txt"));
-			
-			Scanner s = new Scanner(in);
-			int i = 0;
-			int j = 0;
-			int it = 1001;
-			int runs = 30;
-			double matrix[][] = new double[it][runs];
+					
+		File experiments = new File("/Users/lifeth/desktop/experiments/binary/extended/steady/");
 
-			while (s.hasNextLine()) {
-				String line = s.nextLine();
-				String[] tokens = line.substring(1).trim().split(" ");
-				
-				matrix[i][j] += Double.parseDouble(tokens[0]);//min 0, max 1
-						
-				i++;
-
-				if (i == it){
-					i = 0;
-					j++;
-				}
+		//folders generational and steady
+		File files[] = experiments.listFiles(new FileFilter() {
+			
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".txt");
 			}
-
-			s.close();
+		});
+		
+		for(File file: files){
+			 
+			double matrix[][] =  getMatrix(file, false);
 			
 		/*	for (int k = 0; k < it; k++) {
 				System.out.println(k+"="+Arrays.toString(matrix[k]));
 				//System.out.println(Arrays.toString(Stats.statistics_with_median(matrix[k]).get()));
 			}*/
 
-		  FileWriter plot = new FileWriter(
-					//"/Users/lifeth/desktop/experiments/binary/"+GA+"/"+selection+"/processed/"+file);
-					"/Users/lifeth/desktop/experiments/classic.txt");
+		  FileWriter plot = new FileWriter((file.getParentFile().getName().equalsIgnoreCase("real")? 
+				  file.getParentFile().getParent():file.getParent()) +"/processed/"+file.getName());
+					//"/Users/lifeth/desktop/experiments/classic.txt");
 
 		   plot.write("Iteration FMin FMax FMedian FAvg Variance DeStand" + "\n");
 			
 	       StringBuilder sb = new StringBuilder();
 		   // Statistics
-		   for (int x = 0; x < it; x++) {
+		   for (int x = 0; x < 1001; x++) {
 			
 			  sb.append((x + 1));
 			  double[] stats = Stats.statistics_with_median(matrix[x]).get();	
@@ -230,6 +219,201 @@ public class Utils {
 
 			plot.close();
 		}
+			
+	 }
+	 
+	 public static double[][] getMatrix(File file, boolean minimizing) throws Exception{
+		 
+			FileInputStream in = new FileInputStream(file);
+			Scanner s = new Scanner(in);
+			int i = 0;
+			int j = 0;
+			int it = 1001;
+			int runs = 30;
+			double matrix[][] = new double[it][runs];
+
+			while (s.hasNextLine()) {
+				String line = s.nextLine();
+				String[] tokens = line.substring(1).trim().split(" ");
+				
+				matrix[i][j] = Double.parseDouble(tokens[minimizing ? 0 : 1]);//min pos=0, max pos=1
+						
+				i++;
+
+				if (i == it){
+					i = 0;
+					j++;
+				}
+			}
+			
+			s.close();
+			
+		return matrix;
+	 }
+	 
+	 public static void dataToCompareAlgosAnova(List <File> files, String name, boolean minimizing) throws Exception {
+		
+		 ArrayList<File> eas = new ArrayList<>();
+		 
+		   for (File file : files) {
+			   
+			   eas.addAll(Arrays.asList(file.listFiles(new FileFilter() {
+					
+					@Override
+					public boolean accept(File pathname) {
+						return pathname.getName().startsWith(name);
+					}}))); 			   
+			}
+         
+		   StringBuilder sb = new StringBuilder();
+		   double [][] best30 = new double[30][eas.size()]; 
+		   double[] column = new double[1001];
+		   Collections.sort(eas);
+		   
+			for (int k = 0; k < eas.size(); k++) {
+				File file = eas.get(k);
+				double matrix[][] =  getMatrix(file, minimizing);
+				
+				/*for (int w = 0; w < 1001; w++) {
+					System.out.println(w+"="+Arrays.toString(matrix[w]));
+				}*/
+				
+				for (int y = 0; y < 30; y++) {
+					
+					for (int x = 0; x < 1001; x++) {
+						column[x] = matrix[x][y];
+					}
+					
+					DoubleArray.merge(column);
+					best30[y][k] = column[minimizing ? 0 : column.length-1];
+				}
+				
+				String replacement = (file.getPath().contains("steady") ? "SS":"G");
+				String impl = file.getPath().contains("HAEA") ? "HAEA" : "GA" + 
+				file.getName().substring(file.getName().indexOf("X"), file.getName().indexOf("X")+3);
+				sb.append((file.getPath().contains("extended") ? "ReGen"+ replacement+impl : replacement+impl) +" ");
+				//	"="+Arrays.toString(best30)
+			}
+			
+			 FileWriter plot = new FileWriter("/Users/lifeth/desktop/experiments/DataTestANOVA.txt");
+			
+			 plot.write(sb.toString()+ "\n");
+			 sb.setLength(0);
+			 //DoubleArray.merge(best30[1]);
+			 for (int x = 0; x < 30; x++) {
+					   
+				   for (int y = 0; y < eas.size(); y++) {
+					   sb.append(best30[x][y] +" ");
+				    }
+				   
+				   sb.append("\n");
+				   plot.write(sb.toString());
+				   sb.setLength(0);
+			   }
+
+			 plot.close();	
+		 }
+	 
+	 public static void dataToCompareAlgosTtest(List <File> files, String name, boolean minimizing) throws Exception {
+		
+		 ArrayList<File> eas = new ArrayList<>();
+		 
+		   for (File file : files) {
+			   
+			   eas.addAll(Arrays.asList(file.listFiles(new FileFilter() {
+					
+					@Override
+					public boolean accept(File pathname) {
+						return pathname.getName().startsWith(name);
+					}}))); 			   
+			}
+         
+		   StringBuilder sb = new StringBuilder();
+		   double[] column = new double[1001];
+		   Collections.sort(eas);
+		   
+			for (int k = 0; k < eas.size(); k++) {
+				File file = eas.get(k);
+				double matrix[][] =  getMatrix(file, minimizing);
+				
+				/*for (int w = 0; w < 1001; w++) {
+					System.out.println(w+"="+Arrays.toString(matrix[w]));
+				}*/
+				
+				
+				String replacement = (file.getPath().contains("steady") ? "SS":"G");
+				String impl = file.getPath().contains("HAEA") ? "HAEA" : "GA" + 
+				file.getName().substring(file.getName().indexOf("X"), file.getName().indexOf("X")+3);
+				String EA = (file.getPath().contains("extended") ? "ReGen"+ replacement+impl : replacement+impl);
+				
+				for (int y = 0; y < 30; y++) {
+					
+					for (int x = 0; x < 1001; x++) {
+						column[x] = matrix[x][y];
+					}
+					
+					DoubleArray.merge(column);
+					sb.append(EA +" "+column[minimizing ? 0 : column.length-1]+"\n");
+				}				
+			}
+			
+			 FileWriter plot = new FileWriter("/Users/lifeth/desktop/experiments/DataTestForTtest.txt");
+			
+			 plot.write("EAs Fitness\n");
+			 plot.write(sb.toString());
+			 sb.setLength(0);
+			 plot.close();	
+		 }
+	 
+	 public static void dataToCompareAlgosWilcoxTest(List <File> files, String name, boolean minimizing) throws Exception {
+				
+		 ArrayList<File> eas = new ArrayList<>();
+		 
+		   for (File file : files) {
+			   
+			   eas.addAll(Arrays.asList(file.listFiles(new FileFilter() {
+					
+					@Override
+					public boolean accept(File pathname) {
+						return pathname.getName().startsWith(name);
+					}}))); 			   
+			}
+         
+		   StringBuilder sb = new StringBuilder();
+		   double[] column = new double[1001];
+		   Collections.sort(eas);
+		   
+			for (int k = 0; k < eas.size(); k++) {
+				File file = eas.get(k);
+				double matrix[][] =  getMatrix(file, minimizing);
+				
+				/*for (int w = 0; w < 1001; w++) {
+					System.out.println(w+"="+Arrays.toString(matrix[w]));
+				}*/
+				
+				
+				String replacement = (file.getPath().contains("steady") ? "SS":"G");
+				String impl = file.getPath().contains("HAEA") ? "HAEA" : "GA"; 
+				String EA = (file.getPath().contains("extended") ? "ReGen"+ replacement+impl : replacement+impl);
+				
+				for (int y = 0; y < 30; y++) {
+					
+					for (int x = 0; x < 1001; x++) {
+						column[x] = matrix[x][y];
+					}
+					
+					DoubleArray.merge(column);
+					sb.append(EA +" "+column[minimizing ? 0 : column.length-1]+"\n");
+				}				
+			}
+			
+			 FileWriter plot = new FileWriter("/Users/lifeth/desktop/experiments/DataTestForWilcox.txt");
+			
+			 plot.write("EAs Fitness\n");
+			 plot.write(sb.toString());
+			 sb.setLength(0);
+			 plot.close();	
+		 }
 
 		public static void main(String[] args) {
 			/*
@@ -249,6 +433,37 @@ public class Utils {
 			 */;
 			try {
 				Utils.computeResults();
+				
+				List<File> files = 
+						Arrays.asList(
+								/* new File("/Users/lifeth/desktop/experiments/HAEA/classic/steady/"),
+								 new File("/Users/lifeth/desktop/experiments/HAEA/extended/steady/"),
+								 new File("/Users/lifeth/desktop/experiments/HAEA/classic/generational/"),
+								 new File("/Users/lifeth/desktop/experiments/HAEA/extended/generational/")
+						
+						  new File("/Users/lifeth/desktop/experiments/HAEA/classic/steady/real"),
+						  new File("/Users/lifeth/desktop/experiments/HAEA/extended/steady/real"),
+						  new File("/Users/lifeth/desktop/experiments/HAEA/classic/generational/real"),
+						  new File("/Users/lifeth/desktop/experiments/HAEA/extended/generational/real")
+								 
+						 new File("/Users/lifeth/desktop/experiments/binary/classic/steady E/"),
+						 new File("/Users/lifeth/desktop/experiments/binary/extended/steady/"),
+						 new File("/Users/lifeth/desktop/experiments/binary/classic/generational/"),
+						 new File("/Users/lifeth/desktop/experiments/binary/extended/generational/")*/
+						 
+						 new File("/Users/lifeth/desktop/experiments/real/classic/steady E/"),
+						 new File("/Users/lifeth/desktop/experiments/real/extended/steady/"),
+						 new File("/Users/lifeth/desktop/experiments/real/classic/generational/"),
+						 new File("/Users/lifeth/desktop/experiments/real/extended/generational/")
+						 	 
+			             );
+					String name =  "plotSchwefel"; 
+					boolean minimizing = true;
+						 
+				//Utils.dataToCompareAlgosAnova(files, name, minimizing);
+				//Utils.dataToCompareAlgosTtest(files, name, minimizing);
+				//Utils.dataToCompareAlgosWilcoxTest(files, name, minimizing);		
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

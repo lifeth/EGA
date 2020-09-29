@@ -15,6 +15,8 @@ import unalcol.optimization.OptimizationFunction;
 public class Rosenbrock extends OptimizationFunction<MarkedBitArray>{
 
 	 private Reader reader = new Reader();
+	 public static double MIN = -2.048;
+	 public static double MAX = 2.047;
 	 
 	/**
 	 * Creates a Rosenbrock function
@@ -42,7 +44,7 @@ public class Rosenbrock extends OptimizationFunction<MarkedBitArray>{
 		
 		MarkedBitArray xx = x.isClassic() ? x : reader.readMarks(x);
 		
-		double [] genome =  Utils.decode(xx.toString(), -2.048, 2.047);
+		double [] genome =  Utils.decode(xx.toString(), MIN, MAX);
 			  
 		int n = genome.length-1;
 		    
